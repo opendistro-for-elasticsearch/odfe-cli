@@ -23,6 +23,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mocks/mock_config.go -package=mocks . Controller
 type Controller interface {
 	Read() (entity.Config, error)

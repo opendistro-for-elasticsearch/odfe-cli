@@ -6,9 +6,8 @@ package mocks
 
 import (
 	entity "es-cli/odfe-cli/entity"
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockController is a mock of Controller interface
