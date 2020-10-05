@@ -51,7 +51,7 @@ func (mr *MockControllerMockRecorder) Create(arg0 interface{}) *gomock.Call {
 // Get mocks base method.
 func (m *MockController) Get(arg0 string) (entity.Profile, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProfile", arg0)
+	ret := m.ctrl.Call(m, "GetProfileByName", arg0)
 	ret0, _ := ret[0].(entity.Profile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -60,7 +60,7 @@ func (m *MockController) Get(arg0 string) (entity.Profile, error) {
 // Get indicates an expected call of Get.
 func (mr *MockControllerMockRecorder) Get(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockController)(nil).Get), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileByName", reflect.TypeOf((*MockController)(nil).Get), arg0)
 }
 
 // GetNames mocks base method.

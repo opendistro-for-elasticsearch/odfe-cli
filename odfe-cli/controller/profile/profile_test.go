@@ -19,22 +19,40 @@ import (
 	"errors"
 	config "es-cli/odfe-cli/controller/config/mocks"
 	"es-cli/odfe-cli/entity"
+	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
-func getSampleConfig() entity.Config {
+func getDefaultConfig() entity.Config {
 	return entity.Config{
-		Profiles: []entity.Profile{{
-			Name:     "local",
-			Endpoint: "https://localhost:9200",
-			UserName: "admin", Password: "admin",
-		}}}
+		Profiles: []entity.Profile{
+			{
+				Name:     odfeDefaultProfileName,
+				Endpoint: "https://localhost:9200",
+				UserName: "user", Password: "user123",
+			}}}
 }
 
-func TestControllerGetNames(t *testing.T) {
+func getSampleConfig() entity.Config {
+	return entity.Config{
+		Profiles: []entity.Profile{
+			{
+				Name:     "local",
+				Endpoint: "https://localhost:9200",
+				UserName: "admin", Password: "admin",
+			},
+			{
+				Name:     "default",
+				Endpoint: "https://127.0.0.1:9200",
+				UserName: "user", Password: "user123",
+			},
+		}}
+}
+
+func TestControllerGetProfileNames(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
@@ -43,7 +61,7 @@ func TestControllerGetNames(t *testing.T) {
 		ctrl := New(mockConfigCtrl)
 		names, err := ctrl.GetProfileNames()
 		assert.NoError(t, err)
-		assert.EqualValues(t, []string{"local"}, names)
+		assert.EqualValues(t, []string{"local", "default"}, names)
 	})
 	t.Run("config controller failed", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
@@ -56,14 +74,41 @@ func TestControllerGetNames(t *testing.T) {
 	})
 }
 
-func TestControllerGet(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
+func TestControllerGetProfileForExecution(t *testing.T) {
+	t.Run("provided profile name: success", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mockConfigCtrl := config.NewMockController(mockCtrl)
 		mockConfigCtrl.EXPECT().Read().Return(getSampleConfig(), nil)
 		ctrl := New(mockConfigCtrl)
-		p, ok, err := ctrl.GetProfile("local")
+		p, ok, err := ctrl.GetProfileForExecution("local")
+		assert.NoError(t, err)
+		assert.True(t, ok)
+		assert.EqualValues(t, getSampleConfig().Profiles[0], p)
+	})
+
+	t.Run("select default profile", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+		mockConfigCtrl := config.NewMockController(mockCtrl)
+		mockConfigCtrl.EXPECT().Read().Return(getDefaultConfig(), nil)
+		ctrl := New(mockConfigCtrl)
+		p, ok, err := ctrl.GetProfileForExecution("")
+		assert.NoError(t, err)
+		assert.True(t, ok)
+		assert.EqualValues(t, getDefaultConfig().Profiles[0], p)
+	})
+	t.Run("set environment variable: success", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+		mockConfigCtrl := config.NewMockController(mockCtrl)
+		mockConfigCtrl.EXPECT().Read().Return(getSampleConfig(), nil)
+		ctrl := New(mockConfigCtrl)
+		os.Setenv(odfeConfigEnvVarName, "local")
+		defer func() {
+			os.Setenv(odfeConfigEnvVarName, "")
+		}()
+		p, ok, err := ctrl.GetProfileForExecution("")
 		assert.NoError(t, err)
 		assert.True(t, ok)
 		assert.EqualValues(t, getSampleConfig().Profiles[0], p)
@@ -74,7 +119,7 @@ func TestControllerGet(t *testing.T) {
 		mockConfigCtrl := config.NewMockController(mockCtrl)
 		mockConfigCtrl.EXPECT().Read().Return(entity.Config{}, errors.New("failed to read"))
 		ctrl := New(mockConfigCtrl)
-		_, _, err := ctrl.GetProfile("local")
+		_, _, err := ctrl.GetProfileForExecution("local")
 		assert.EqualError(t, err, "failed to read")
 	})
 	t.Run("no profile found", func(t *testing.T) {
@@ -83,20 +128,20 @@ func TestControllerGet(t *testing.T) {
 		mockConfigCtrl := config.NewMockController(mockCtrl)
 		mockConfigCtrl.EXPECT().Read().Return(getSampleConfig(), nil)
 		ctrl := New(mockConfigCtrl)
-		_, ok, err := ctrl.GetProfile("invalid")
+		_, ok, err := ctrl.GetProfileForExecution("invalid")
 		assert.NoError(t, err)
 		assert.False(t, ok)
 	})
 }
-func TestControllerCreate(t *testing.T) {
+func TestControllerCreateProfile(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mockConfigCtrl := config.NewMockController(mockCtrl)
 		mockConfigCtrl.EXPECT().Read().Return(entity.Config{}, nil)
-		mockConfigCtrl.EXPECT().Write(getSampleConfig()).Return(nil)
+		mockConfigCtrl.EXPECT().Write(getDefaultConfig()).Return(nil)
 		ctrl := New(mockConfigCtrl)
-		err := ctrl.CreateProfile(getSampleConfig().Profiles[0])
+		err := ctrl.CreateProfile(getDefaultConfig().Profiles[0])
 		assert.NoError(t, err)
 	})
 	t.Run("config controller read failed", func(t *testing.T) {
@@ -105,7 +150,7 @@ func TestControllerCreate(t *testing.T) {
 		mockConfigCtrl := config.NewMockController(mockCtrl)
 		mockConfigCtrl.EXPECT().Read().Return(entity.Config{}, errors.New("failed to read"))
 		ctrl := New(mockConfigCtrl)
-		err := ctrl.CreateProfile(getSampleConfig().Profiles[0])
+		err := ctrl.CreateProfile(getDefaultConfig().Profiles[0])
 		assert.EqualError(t, err, "failed to read")
 	})
 	t.Run("config controller write failed", func(t *testing.T) {
@@ -113,9 +158,9 @@ func TestControllerCreate(t *testing.T) {
 		defer mockCtrl.Finish()
 		mockConfigCtrl := config.NewMockController(mockCtrl)
 		mockConfigCtrl.EXPECT().Read().Return(entity.Config{}, nil)
-		mockConfigCtrl.EXPECT().Write(getSampleConfig()).Return(errors.New("failed to write"))
+		mockConfigCtrl.EXPECT().Write(getDefaultConfig()).Return(errors.New("failed to write"))
 		ctrl := New(mockConfigCtrl)
-		err := ctrl.CreateProfile(getSampleConfig().Profiles[0])
+		err := ctrl.CreateProfile(getDefaultConfig().Profiles[0])
 		assert.EqualError(t, err, "failed to write")
 	})
 }

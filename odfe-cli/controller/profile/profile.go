@@ -18,12 +18,18 @@ package profile
 import (
 	"es-cli/odfe-cli/controller/config"
 	"es-cli/odfe-cli/entity"
+	"os"
+)
+
+const (
+	odfeConfigEnvVarName   = "ODFE_CONFIG"
+	odfeDefaultProfileName = "default"
 )
 
 // go:generate mockgen -destination=mocks/mock_ad.go -package=mocks . Controller
 type Controller interface {
 	GetProfileNames() ([]string, error)
-	GetProfile(name string) (entity.Profile, bool, error)
+	GetProfileForExecution(name string) (entity.Profile, bool, error)
 	CreateProfile(profile entity.Profile) error
 }
 
@@ -51,11 +57,11 @@ func (c controller) GetProfileNames() ([]string, error) {
 	return names, nil
 }
 
-// GetProfile gets the profile named by the name. If the profile is present
+// getProfileByName gets the profile named by the name. If the profile is present
 // in the config, the profile is returned and the boolean is true.
 // Otherwise the returned profile will be empty and the boolean will
 // be false.
-func (c controller) GetProfile(name string) (entity.Profile, bool, error) {
+func (c controller) getProfileByName(name string) (entity.Profile, bool, error) {
 	data, err := c.configCtrl.Read()
 	if err != nil {
 		return entity.Profile{}, false, err
@@ -76,4 +82,19 @@ func (c controller) CreateProfile(p entity.Profile) error {
 	}
 	data.Profiles = append(data.Profiles, p)
 	return c.configCtrl.Write(data)
+}
+
+// GetProfileForExecution returns profile information for current command execution
+// if profile is provided as an argument, will return the profile,
+// if profile name is not provided as argument, we will check for environment variable
+// in session, then will check ofr profile named default
+// bool determines whether profile is valid or not
+func (c controller) GetProfileForExecution(name string) (entity.Profile, bool, error) {
+	if name != "" {
+		return c.getProfileByName(name)
+	}
+	if p, ok := os.LookupEnv(odfeConfigEnvVarName); ok {
+		return c.getProfileByName(p)
+	}
+	return c.getProfileByName(odfeDefaultProfileName)
 }
