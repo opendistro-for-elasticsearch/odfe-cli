@@ -26,7 +26,7 @@ const (
 	odfeDefaultProfileName = "default"
 )
 
-// go:generate mockgen -destination=mocks/mock_ad.go -package=mocks . Controller
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mocks/mock_profile.go -package=mocks . Controller
 type Controller interface {
 	GetProfiles() ([]entity.Profile, error)
 	GetProfileNames() ([]string, error)
