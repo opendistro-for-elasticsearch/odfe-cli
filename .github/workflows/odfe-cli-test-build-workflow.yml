@@ -16,7 +16,7 @@ jobs:
       - name: Check out source code
         uses: actions/checkout@v2
 
-      - name: Format
+      - name: Format check
         run: |
           cd ..
           go get golang.org/x/tools/cmd/goimports
@@ -35,7 +35,7 @@ jobs:
           git diff
           exit 1
 
-      - name: golangci-lint
+      - name: Lint check
         uses: golangci/golangci-lint-action@v1
         with:
           version: v1.28
@@ -46,6 +46,13 @@ jobs:
           GOPROXY: "https://proxy.golang.org"
         run: |
           go test ./...
+
+      - name: Run coverage
+        env:
+          GOPROXY: "https://proxy.golang.org"
+        run: |
+          go test ./...  -coverprofile=coverage.out
+          go tool cover -func=coverage.out
 
   build:
     defaults:
