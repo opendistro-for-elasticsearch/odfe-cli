@@ -64,7 +64,7 @@ func TestControllerRead(t *testing.T) {
 }
 func TestControllerWrite(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		f, err := ioutil.TempFile(os.TempDir(), "config")
+		f, err := ioutil.TempFile("", "config")
 		assert.NoError(t, err)
 		defer func() {
 			err = os.Remove(f.Name())

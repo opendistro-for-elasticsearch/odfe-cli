@@ -22,14 +22,17 @@ import (
 )
 
 const (
-	odfeConfigEnvVarName   = "ODFE_CONFIG"
+	odfeProfileEnvVarName  = "ODFE_PROFILE"
 	odfeDefaultProfileName = "default"
 )
 
 // go:generate mockgen -destination=mocks/mock_ad.go -package=mocks . Controller
 type Controller interface {
+	GetProfiles() ([]entity.Profile, error)
 	GetProfileNames() ([]string, error)
+	GetProfilesMap() (map[string]entity.Profile, error)
 	GetProfileForExecution(name string) (entity.Profile, bool, error)
+	DeleteProfile(names []string) error
 	CreateProfile(profile entity.Profile) error
 }
 
@@ -44,37 +47,41 @@ func New(c config.Controller) Controller {
 	}
 }
 
-// GetProfileNames gets list of profile names
-func (c controller) GetProfileNames() ([]string, error) {
+func (c controller) GetProfiles() ([]entity.Profile, error) {
 	data, err := c.configCtrl.Read()
 	if err != nil {
 		return nil, err
 	}
+	return data.Profiles, nil
+}
+
+// GetProfileNames gets list of profile names
+func (c controller) GetProfileNames() ([]string, error) {
+	profiles, err := c.GetProfiles()
+	if err != nil {
+		return nil, err
+	}
 	var names []string
-	for _, profile := range data.Profiles {
+	for _, profile := range profiles {
 		names = append(names, profile.Name)
 	}
 	return names, nil
 }
 
-// getProfileByName gets the profile named by the name. If the profile is present
-// in the config, the profile is returned and the boolean is true.
-// Otherwise the returned profile will be empty and the boolean will
-// be false.
-func (c controller) getProfileByName(name string) (entity.Profile, bool, error) {
-	data, err := c.configCtrl.Read()
+// GetProfilesMap returns a map view of the profiles contained in config
+func (c controller) GetProfilesMap() (map[string]entity.Profile, error) {
+	profiles, err := c.GetProfiles()
 	if err != nil {
-		return entity.Profile{}, false, err
+		return nil, err
 	}
-	for _, p := range data.Profiles {
-		if p.Name == name {
-			return p, true, nil
-		}
+	result := make(map[string]entity.Profile)
+	for _, p := range profiles {
+		result[p.Name] = p
 	}
-	return entity.Profile{}, false, nil
+	return result, nil
 }
 
-// CreateProfile creates profile and saves it in config file
+// CreateProfile creates profile by get list of existing profiles, append to it and saves it in config file
 func (c controller) CreateProfile(p entity.Profile) error {
 	data, err := c.configCtrl.Read()
 	if err != nil {
@@ -84,17 +91,51 @@ func (c controller) CreateProfile(p entity.Profile) error {
 	return c.configCtrl.Write(data)
 }
 
+// DeleteProfile loads all profile, deletes selected profiles, and saves rest in config file
+func (c controller) DeleteProfile(names []string) error {
+	profilesMap, err := c.GetProfilesMap()
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		delete(profilesMap, name)
+	}
+
+	//load config
+	data, err := c.configCtrl.Read()
+	if err != nil {
+		return err
+	}
+
+	//empty existing profile
+	data.Profiles = nil
+	for _, p := range profilesMap {
+		// add existing profiles to the list
+		data.Profiles = append(data.Profiles, p)
+	}
+
+	//save config
+	return c.configCtrl.Write(data)
+}
+
 // GetProfileForExecution returns profile information for current command execution
-// if profile is provided as an argument, will return the profile,
+// if profile name is provided as an argument, will return the profile,
 // if profile name is not provided as argument, we will check for environment variable
-// in session, then will check ofr profile named default
+// in session, then will check for profile named `default`
 // bool determines whether profile is valid or not
-func (c controller) GetProfileForExecution(name string) (entity.Profile, bool, error) {
+func (c controller) GetProfileForExecution(name string) (value entity.Profile, ok bool, err error) {
+	profiles, err := c.GetProfilesMap()
+	if err != nil {
+		return
+	}
 	if name != "" {
-		return c.getProfileByName(name)
+		value, ok = profiles[name]
+		return
 	}
-	if p, ok := os.LookupEnv(odfeConfigEnvVarName); ok {
-		return c.getProfileByName(p)
+	if envProfileName, exists := os.LookupEnv(odfeProfileEnvVarName); exists {
+		value, ok = profiles[envProfileName]
+		return
 	}
-	return c.getProfileByName(odfeDefaultProfileName)
+	value, ok = profiles[odfeDefaultProfileName]
+	return
 }
