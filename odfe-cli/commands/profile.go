@@ -188,6 +188,7 @@ func getUserInputAsText(isValid func(string) bool) string {
 	return strings.TrimSpace(response)
 }
 
+
 // checkInputIsNotEmpty checks whether input is empty or not
 func checkInputIsNotEmpty(input string) bool {
 	if len(input) < 1 {
