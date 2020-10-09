@@ -16,10 +16,6 @@ jobs:
       - name: Check out source code
         uses: actions/checkout@v2
 
-      - name: Generate
-        run: |
-          go generate ./...
-
       - name: Format
         run: |
           cd ..
