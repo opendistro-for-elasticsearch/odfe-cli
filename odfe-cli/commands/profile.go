@@ -30,12 +30,13 @@ import (
 
 const (
 	createNewProfileCommandName = "create"
-	profileCommandName          = "profile"
+	DeleteProfileCommandName    = "delete"
+	ProfileCommandName          = "profile"
 )
 
 //profileCommand is main command for profile operations like list, create and delete
 var profileCommand = &cobra.Command{
-	Use:   profileCommandName + " sub-command",
+	Use:   ProfileCommandName + " sub-command",
 	Short: "Manage collection of settings and credentials that you can apply to an odfe-cli command",
 	Long: fmt.Sprintf("Description:\n  " +
 		`A named profile is a collection of settings and credentials that you can apply to an odfe-cli command.
@@ -47,14 +48,15 @@ var profileCommand = &cobra.Command{
 var createProfileCmd = &cobra.Command{
 	Use:   createNewProfileCommandName,
 	Short: "Creates a new named profile",
-	Long:  `Creates a new named profile with details like name, endpoint, user and password`,
+	Long: fmt.Sprintf("Description:\n  " +
+		`Creates a new named profile with details like name, endpoint, user and password`),
 	Run: func(cmd *cobra.Command, args []string) {
-		cfgFile, err := GetRoot().Flags().GetString(flagConfig)
+		profileController, err := getController()
 		if err != nil {
 			DisplayError(err, createNewProfileCommandName)
 			return
 		}
-		err = CreateProfile(cfgFile, getNewProfile)
+		err = CreateProfile(profileController, getNewProfile)
 		if err != nil {
 			DisplayError(err, createNewProfileCommandName)
 			return
@@ -62,20 +64,60 @@ var createProfileCmd = &cobra.Command{
 	},
 }
 
+func getController() (profile.Controller, error) {
+	cfgFile, err := GetRoot().Flags().GetString(flagConfig)
+	if err != nil {
+		return nil, err
+	}
+	return getProfileController(cfgFile)
+}
+
+//deleteProfileCmd deletes profiles by names
+var deleteProfileCmd = &cobra.Command{
+	Use:   DeleteProfileCommandName + " profile_name ...",
+	Short: "Deletes profiles by names",
+	Long: fmt.Sprintf("Description:\n  " +
+		`Deletes profiles by names if it exists in config file, permanently`),
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := deleteProfiles(cmd, args); err != nil {
+			DisplayError(err, DeleteProfileCommandName)
+			return
+		}
+	},
+}
+
+func deleteProfiles(cmd *cobra.Command, profiles []string) error {
+	if len(profiles) < 1 {
+		fmt.Println(cmd.Usage())
+		return nil
+	}
+	profileController, err := getController()
+	if err != nil {
+		return err
+	}
+	return profileController.DeleteProfile(profiles)
+}
+
 // init to register commands to its parent command to create a hierarchy
 func init() {
 	profileCommand.AddCommand(createProfileCmd)
+	profileCommand.AddCommand(deleteProfileCmd)
 	GetRoot().AddCommand(profileCommand)
 }
 
-// CreateProfile creates a new named profile
-func CreateProfile(cfgFlagValue string, getNewProfile func(map[string]entity.Profile) entity.Profile) error {
+//getProfileController gets profile controller by wiring config controller with config file
+func getProfileController(cfgFlagValue string) (profile.Controller, error) {
 	configFilePath, err := GetConfigFilePath(cfgFlagValue)
 	if err != nil {
-		return fmt.Errorf("failed to get config file due to: %w", err)
+		return nil, fmt.Errorf("failed to get config file due to: %w", err)
 	}
 	configController := config.New(configFilePath)
 	profileController := profile.New(configController)
+	return profileController, nil
+}
+
+// CreateProfile creates a new named profile
+func CreateProfile(profileController profile.Controller, getNewProfile func(map[string]entity.Profile) entity.Profile) error {
 	profiles, err := profileController.GetProfilesMap()
 	if err != nil {
 		return fmt.Errorf("failed to get profile names due to: %w", err)
@@ -91,19 +133,15 @@ func CreateProfile(cfgFlagValue string, getNewProfile func(map[string]entity.Pro
 func getNewProfile(profileMap map[string]entity.Profile) entity.Profile {
 	var name string
 	for {
-		fmt.Printf("Enter profile's name: ")
-		name = getUserInputAsText(checkInputIsNotEmpty)
+		name = getUserInputAsText("Enter profile's name", checkInputIsNotEmpty)
 		if _, ok := profileMap[name]; !ok {
 			break
 		}
-		fmt.Println("profile ", name, "already exists.")
+		fmt.Println("profile", name, "already exists.")
 	}
-	fmt.Printf("Elasticsearch Endpoint: ")
-	endpoint := getUserInputAsText(checkInputIsNotEmpty)
-	fmt.Printf("User Name: ")
-	user := getUserInputAsText(checkInputIsNotEmpty)
-	fmt.Printf("Password: ")
-	password := getUserInputAsMaskedText(checkInputIsNotEmpty)
+	endpoint := getUserInputAsText("Elasticsearch Endpoint", checkInputIsNotEmpty)
+	user := getUserInputAsText("User Name", checkInputIsNotEmpty)
+	password := getUserInputAsMaskedText("Password", checkInputIsNotEmpty)
 	return entity.Profile{
 		Name:     name,
 		Endpoint: endpoint,
@@ -113,12 +151,13 @@ func getNewProfile(profileMap map[string]entity.Profile) entity.Profile {
 }
 
 // getUserInputAsText get value from user as text
-func getUserInputAsText(isValid func(string) bool) string {
+func getUserInputAsText(message string, isValid func(string) bool) string {
+	fmt.Printf("%s: ", message)
 	var response string
 	//Ignore return value since validation is applied below
 	_, _ = fmt.Scanln(&response)
 	if !isValid(response) {
-		return getUserInputAsText(isValid)
+		return getUserInputAsText("", isValid)
 	}
 	return strings.TrimSpace(response)
 }
@@ -134,7 +173,8 @@ func checkInputIsNotEmpty(input string) bool {
 
 // getUserInputAsMaskedText get value from user as masked text, since credentials like password
 // should not be displayed on console for security reasons
-func getUserInputAsMaskedText(isValid func(string) bool) string {
+func getUserInputAsMaskedText(message string, isValid func(string) bool) string {
+	fmt.Printf("%s: ", message)
 	maskedValue, err := terminal.ReadPassword(0)
 	if err != nil {
 		fmt.Println(err)
@@ -142,7 +182,7 @@ func getUserInputAsMaskedText(isValid func(string) bool) string {
 	}
 	value := fmt.Sprintf("%s", maskedValue)
 	if !isValid(value) {
-		return getUserInputAsMaskedText(isValid)
+		return getUserInputAsMaskedText("", isValid)
 	}
 	fmt.Println()
 	return value

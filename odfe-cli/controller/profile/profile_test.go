@@ -208,6 +208,18 @@ func TestControllerDeleteProfile(t *testing.T) {
 		err := ctrl.DeleteProfile([]string{getSampleConfig().Profiles[0].Name})
 		assert.NoError(t, err)
 	})
+	t.Run("failed to delete only invalid profiles", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+		mockConfigCtrl := config.NewMockController(mockCtrl)
+		mockConfigCtrl.EXPECT().Read().Return(getSampleConfig(), nil).Times(2)
+		expectedConfig := getSampleConfig()
+		expectedConfig.Profiles = []entity.Profile{expectedConfig.Profiles[1]}
+		mockConfigCtrl.EXPECT().Write(expectedConfig).Return(nil)
+		ctrl := New(mockConfigCtrl)
+		err := ctrl.DeleteProfile([]string{getSampleConfig().Profiles[0].Name, "invalid-profile1", "invalid-profile2"})
+		assert.EqualError(t, err, "no profiles found for: invalid-profile1, invalid-profile2")
+	})
 	t.Run("config controller read failed", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()

@@ -29,7 +29,7 @@ const (
 	flagConfig            = "config"
 	folderPermission      = 0755 // only owner can write, while everyone can read and execute
 	failureExitCode       = -1   // non zero code is considered failure
-	odfeConfigEnvVarName  = "ODFE_CONFIG"
+	odfeConfigEnvVarName  = "ODFE_CLI_CONFIG"
 	rootCommandName       = "odfe-cli"
 	version               = "0.1"
 )
@@ -123,7 +123,7 @@ func isExists(path string) bool {
 func DisplayError(err error, cmdName string) {
 	if err != nil {
 		fmt.Println(cmdName, "command failed")
-		fmt.Println("Reason: ", err)
+		fmt.Println("Reason:", err)
 		os.Exit(failureExitCode)
 	}
 }

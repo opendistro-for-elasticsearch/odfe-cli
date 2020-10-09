@@ -18,7 +18,9 @@ package profile
 import (
 	"es-cli/odfe-cli/controller/config"
 	"es-cli/odfe-cli/entity"
+	"fmt"
 	"os"
+	"strings"
 )
 
 const (
@@ -40,13 +42,14 @@ type controller struct {
 	configCtrl config.Controller
 }
 
-// New returns new Controller instance
+//New returns new config controller instance
 func New(c config.Controller) Controller {
 	return &controller{
 		configCtrl: c,
 	}
 }
 
+//GetProfiles gets list of profiles fom config file
 func (c controller) GetProfiles() ([]entity.Profile, error) {
 	data, err := c.configCtrl.Read()
 	if err != nil {
@@ -55,7 +58,7 @@ func (c controller) GetProfiles() ([]entity.Profile, error) {
 	return data.Profiles, nil
 }
 
-// GetProfileNames gets list of profile names
+//GetProfileNames gets list of profile names
 func (c controller) GetProfileNames() ([]string, error) {
 	profiles, err := c.GetProfiles()
 	if err != nil {
@@ -68,7 +71,7 @@ func (c controller) GetProfileNames() ([]string, error) {
 	return names, nil
 }
 
-// GetProfilesMap returns a map view of the profiles contained in config
+//GetProfilesMap returns a map view of the profiles contained in config
 func (c controller) GetProfilesMap() (map[string]entity.Profile, error) {
 	profiles, err := c.GetProfiles()
 	if err != nil {
@@ -81,7 +84,8 @@ func (c controller) GetProfilesMap() (map[string]entity.Profile, error) {
 	return result, nil
 }
 
-// CreateProfile creates profile by get list of existing profiles, append to it and saves it in config file
+//CreateProfile creates profile by gets list of existing profiles, append new profile to list
+//and saves it in config file
 func (c controller) CreateProfile(p entity.Profile) error {
 	data, err := c.configCtrl.Read()
 	if err != nil {
@@ -91,13 +95,18 @@ func (c controller) CreateProfile(p entity.Profile) error {
 	return c.configCtrl.Write(data)
 }
 
-// DeleteProfile loads all profile, deletes selected profiles, and saves rest in config file
+//DeleteProfile loads all profile, deletes selected profiles, and saves rest in config file
 func (c controller) DeleteProfile(names []string) error {
 	profilesMap, err := c.GetProfilesMap()
 	if err != nil {
 		return err
 	}
+	var invalidProfileNames []string
 	for _, name := range names {
+		if _, ok := profilesMap[name]; !ok {
+			invalidProfileNames = append(invalidProfileNames, name)
+			continue
+		}
 		delete(profilesMap, name)
 	}
 
@@ -115,7 +124,16 @@ func (c controller) DeleteProfile(names []string) error {
 	}
 
 	//save config
-	return c.configCtrl.Write(data)
+	err = c.configCtrl.Write(data)
+	if err != nil {
+		return err
+	}
+
+	// if found any invalid profiles
+	if len(invalidProfileNames) > 0 {
+		return fmt.Errorf("no profiles found for: %s", strings.Join(invalidProfileNames, ", "))
+	}
+	return nil
 }
 
 // GetProfileForExecution returns profile information for current command execution

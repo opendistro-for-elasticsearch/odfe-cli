@@ -41,8 +41,8 @@ func TestGetConfigFilePath(t *testing.T) {
 func TestGetRoot(t *testing.T) {
 	t.Run("test root command", func(t *testing.T) {
 		root := GetRoot()
-		root.SetArgs([]string{"--config", "test/config.yml"})
 		assert.NotNil(t, root)
+		root.SetArgs([]string{"--config", "test/config.yml"})
 		cmd, err := root.ExecuteC()
 		assert.NoError(t, err)
 		expected, err := cmd.Flags().GetString(flagConfig)

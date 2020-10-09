@@ -16,10 +16,15 @@
 package commands
 
 import (
+	"errors"
+	"es-cli/odfe-cli/controller/profile/mocks"
 	"es-cli/odfe-cli/entity"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/golang/mock/gomock"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
@@ -36,19 +41,51 @@ func fakeInputProfile(map[string]entity.Profile) entity.Profile {
 
 func TestCreateProfile(t *testing.T) {
 	t.Run("create profile successfully", func(t *testing.T) {
-		f, err := ioutil.TempFile("", "profile-create")
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+		mockProfileCtrl := mocks.NewMockController(mockCtrl)
+		mockProfileCtrl.EXPECT().GetProfilesMap().Return(nil, nil)
+		mockProfileCtrl.EXPECT().CreateProfile(fakeInputProfile(nil)).Return(nil)
+		err := CreateProfile(mockProfileCtrl, fakeInputProfile)
+		assert.NoError(t, err)
+	})
+	t.Run("create profile failed", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+		mockProfileCtrl := mocks.NewMockController(mockCtrl)
+		mockProfileCtrl.EXPECT().GetProfilesMap().Return(nil, nil)
+		mockProfileCtrl.EXPECT().CreateProfile(fakeInputProfile(nil)).Return(errors.New("error"))
+		err := CreateProfile(mockProfileCtrl, fakeInputProfile)
+		assert.EqualError(t, err, fmt.Sprintf("failed to create profile %v due to: error", fakeInputProfile(nil)))
+	})
+}
+
+func TestDeleteProfileCommand(t *testing.T) {
+	t.Run("test delete profile command", func(t *testing.T) {
+		f, err := ioutil.TempFile("", "profile-delete")
 		assert.NoError(t, err)
 		defer func() {
 			err := os.Remove(f.Name())
 			assert.NoError(t, err)
 		}()
-		err = CreateProfile(f.Name(), fakeInputProfile)
+		config := entity.Config{Profiles: []entity.Profile{fakeInputProfile(nil)}}
+		bytes, err := yaml.Marshal(config)
 		assert.NoError(t, err)
+		assert.NoError(t, ioutil.WriteFile(f.Name(), bytes, 0644))
+		assert.NoError(t, f.Sync())
+		root := GetRoot()
+		assert.NotNil(t, root)
+		root.SetArgs([]string{ProfileCommandName, DeleteProfileCommandName, config.Profiles[0].Name, "--config", f.Name()})
+		cmd, err := root.ExecuteC()
+		assert.NoError(t, err)
+		expected, err := cmd.Flags().GetString(flagConfig)
+		assert.NoError(t, err)
+		assert.EqualValues(t, expected, f.Name())
+		var expectedConfig entity.Config
 		contents, err := ioutil.ReadFile(f.Name())
 		assert.NoError(t, err)
-		var config entity.Config
-		err = yaml.Unmarshal(contents, &config)
+		err = yaml.Unmarshal(contents, &expectedConfig)
 		assert.NoError(t, err)
-		assert.EqualValues(t, config, entity.Config{Profiles: []entity.Profile{fakeInputProfile(nil)}})
+		assert.EqualValues(t, expectedConfig, entity.Config{Profiles: []entity.Profile{}})
 	})
 }
