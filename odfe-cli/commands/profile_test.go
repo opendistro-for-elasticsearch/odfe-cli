@@ -89,3 +89,48 @@ func TestDeleteProfileCommand(t *testing.T) {
 		assert.EqualValues(t, expectedConfig, entity.Config{Profiles: []entity.Profile{}})
 	})
 }
+
+func TestListsProfileCommand(t *testing.T) {
+	t.Run("test list profiles", func(t *testing.T) {
+		f, err := ioutil.TempFile("", "profile-list")
+		assert.NoError(t, err)
+		defer func() {
+			err := os.Remove(f.Name())
+			assert.NoError(t, err)
+		}()
+		config := entity.Config{Profiles: []entity.Profile{fakeInputProfile(nil)}}
+		bytes, err := yaml.Marshal(config)
+		assert.NoError(t, err)
+		assert.NoError(t, ioutil.WriteFile(f.Name(), bytes, 0644))
+		assert.NoError(t, f.Sync())
+		root := GetRoot()
+		assert.NotNil(t, root)
+		root.SetArgs([]string{ProfileCommandName, ListsProfileCommandName, "--config", f.Name()})
+		cmd, err := root.ExecuteC()
+		assert.NoError(t, err)
+		expected, err := cmd.Flags().GetString(flagConfig)
+		assert.NoError(t, err)
+		assert.EqualValues(t, expected, f.Name())
+	})
+	t.Run("test list profiles with verbose", func(t *testing.T) {
+		f, err := ioutil.TempFile("", "profile-list")
+		assert.NoError(t, err)
+		defer func() {
+			err := os.Remove(f.Name())
+			assert.NoError(t, err)
+		}()
+		config := entity.Config{Profiles: []entity.Profile{fakeInputProfile(nil)}}
+		bytes, err := yaml.Marshal(config)
+		assert.NoError(t, err)
+		assert.NoError(t, ioutil.WriteFile(f.Name(), bytes, 0644))
+		assert.NoError(t, f.Sync())
+		root := GetRoot()
+		assert.NotNil(t, root)
+		root.SetArgs([]string{ProfileCommandName, ListsProfileCommandName, "--" + FlagProfileVerbose, "--" + flagConfig, f.Name()})
+		cmd, err := root.ExecuteC()
+		assert.NoError(t, err)
+		expected, err := cmd.Flags().GetString(flagConfig)
+		assert.NoError(t, err)
+		assert.EqualValues(t, expected, f.Name())
+	})
+}

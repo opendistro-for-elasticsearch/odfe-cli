@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"text/tabwriter"
 
 	"golang.org/x/crypto/ssh/terminal"
 
@@ -29,10 +30,23 @@ import (
 )
 
 const (
-	createNewProfileCommandName = "create"
+	CreateNewProfileCommandName = "create"
 	DeleteProfileCommandName    = "delete"
+	FlagProfileVerbose          = "verbose"
+	ListsProfileCommandName     = "lists"
 	ProfileCommandName          = "profile"
+	padding                     = 3
+	alignLeft                   = 0
 )
+
+//getController gets controller based on config file
+func getController() (profile.Controller, error) {
+	cfgFile, err := GetRoot().Flags().GetString(flagConfig)
+	if err != nil {
+		return nil, err
+	}
+	return getProfileController(cfgFile)
+}
 
 //profileCommand is main command for profile operations like list, create and delete
 var profileCommand = &cobra.Command{
@@ -46,30 +60,22 @@ var profileCommand = &cobra.Command{
 
 //createProfileCmd creates profile interactively by prompting for name (distinct), user, endpoint, password.
 var createProfileCmd = &cobra.Command{
-	Use:   createNewProfileCommandName,
+	Use:   CreateNewProfileCommandName,
 	Short: "Creates a new named profile",
 	Long: fmt.Sprintf("Description:\n  " +
 		`Creates a new named profile with details like name, endpoint, user and password`),
 	Run: func(cmd *cobra.Command, args []string) {
 		profileController, err := getController()
 		if err != nil {
-			DisplayError(err, createNewProfileCommandName)
+			DisplayError(err, CreateNewProfileCommandName)
 			return
 		}
 		err = CreateProfile(profileController, getNewProfile)
 		if err != nil {
-			DisplayError(err, createNewProfileCommandName)
+			DisplayError(err, CreateNewProfileCommandName)
 			return
 		}
 	},
-}
-
-func getController() (profile.Controller, error) {
-	cfgFile, err := GetRoot().Flags().GetString(flagConfig)
-	if err != nil {
-		return nil, err
-	}
-	return getProfileController(cfgFile)
 }
 
 //deleteProfileCmd deletes profiles by names
@@ -79,18 +85,33 @@ var deleteProfileCmd = &cobra.Command{
 	Long: fmt.Sprintf("Description:\n  " +
 		`Deletes profiles by names if it exists in config file, permanently`),
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := deleteProfiles(cmd, args); err != nil {
+		if len(args) < 1 {
+			fmt.Println(cmd.Usage())
+			return
+		}
+		if err := deleteProfiles(args); err != nil {
 			DisplayError(err, DeleteProfileCommandName)
 			return
 		}
 	},
 }
 
-func deleteProfiles(cmd *cobra.Command, profiles []string) error {
-	if len(profiles) < 1 {
-		fmt.Println(cmd.Usage())
-		return nil
-	}
+//listProfileCmd lists profiles by names
+var listProfileCmd = &cobra.Command{
+	Use:   ListsProfileCommandName,
+	Short: "Lists profiles from the config file",
+	Long: fmt.Sprintf("Description:\n  " +
+		`Lists profiles from the config file`),
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := listsProfiles(cmd); err != nil {
+			DisplayError(err, DeleteProfileCommandName)
+			return
+		}
+	},
+}
+
+//deleteProfiles deletes profiles based on names
+func deleteProfiles(profiles []string) error {
 	profileController, err := getController()
 	if err != nil {
 		return err
@@ -102,6 +123,8 @@ func deleteProfiles(cmd *cobra.Command, profiles []string) error {
 func init() {
 	profileCommand.AddCommand(createProfileCmd)
 	profileCommand.AddCommand(deleteProfileCmd)
+	profileCommand.AddCommand(listProfileCmd)
+	listProfileCmd.Flags().BoolP(FlagProfileVerbose, "l", false, "shows information like name, endpoint, user")
 	GetRoot().AddCommand(profileCommand)
 }
 
@@ -186,4 +209,57 @@ func getUserInputAsMaskedText(message string, isValid func(string) bool) string 
 	}
 	fmt.Println()
 	return value
+}
+
+//lists profiles from the config file
+func listsProfiles(cmd *cobra.Command) error {
+	ok, err := cmd.Flags().GetBool(FlagProfileVerbose)
+	if err != nil {
+		return err
+	}
+	profileController, err := getController()
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return displayProfileNames(profileController)
+	}
+	return displayCompleteProfiles(profileController)
+}
+
+//displayCompleteProfiles lists complete profile information as below
+/*
+Name       UserName     Endpoint-url
+----       --------     ------------
+default    admin      	https://localhost:9200
+dev        test      	https://127.0.0.1:9200
+*/
+func displayCompleteProfiles(p profile.Controller) (err error) {
+	var profiles []entity.Profile
+	if profiles, err = p.GetProfiles(); err != nil {
+		return
+	}
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', alignLeft)
+	defer func() {
+		err = w.Flush()
+	}()
+	_, err = fmt.Fprintln(w, "Name\t\tUserName\t\tEndpoint-url\t")
+	_, err = fmt.Fprintf(w, "%s\t\t%s\t\t%s\t\n", "----", "--------", "------------")
+	for _, p := range profiles {
+		_, err = fmt.Fprintf(w, "%s\t\t%s\t\t%s\t\n", p.Name, p.UserName, p.Endpoint)
+	}
+	return
+}
+
+//displayProfileNames lists only profile names
+func displayProfileNames(p profile.Controller) (err error) {
+
+	var names []string
+	if names, err = p.GetProfileNames(); err != nil {
+		return
+	}
+	for _, name := range names {
+		fmt.Println(name)
+	}
+	return nil
 }

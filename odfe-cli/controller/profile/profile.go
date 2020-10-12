@@ -30,12 +30,12 @@ const (
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mocks/mock_profile.go -package=mocks . Controller
 type Controller interface {
+	CreateProfile(profile entity.Profile) error
+	DeleteProfile(names []string) error
 	GetProfiles() ([]entity.Profile, error)
 	GetProfileNames() ([]string, error)
 	GetProfilesMap() (map[string]entity.Profile, error)
 	GetProfileForExecution(name string) (entity.Profile, bool, error)
-	DeleteProfile(names []string) error
-	CreateProfile(profile entity.Profile) error
 }
 
 type controller struct {
