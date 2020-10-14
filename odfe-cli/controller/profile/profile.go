@@ -31,7 +31,7 @@ const (
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mocks/mock_profile.go -package=mocks . Controller
 type Controller interface {
 	CreateProfile(profile entity.Profile) error
-	DeleteProfile(names []string) error
+	DeleteProfiles(names []string) error
 	GetProfiles() ([]entity.Profile, error)
 	GetProfileNames() ([]string, error)
 	GetProfilesMap() (map[string]entity.Profile, error)
@@ -96,7 +96,7 @@ func (c controller) CreateProfile(p entity.Profile) error {
 }
 
 //DeleteProfile loads all profile, deletes selected profiles, and saves rest in config file
-func (c controller) DeleteProfile(names []string) error {
+func (c controller) DeleteProfiles(names []string) error {
 	profilesMap, err := c.GetProfilesMap()
 	if err != nil {
 		return err

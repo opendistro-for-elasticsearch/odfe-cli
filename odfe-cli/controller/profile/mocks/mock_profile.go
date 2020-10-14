@@ -48,18 +48,18 @@ func (mr *MockControllerMockRecorder) CreateProfile(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProfile", reflect.TypeOf((*MockController)(nil).CreateProfile), arg0)
 }
 
-// DeleteProfile mocks base method
-func (m *MockController) DeleteProfile(arg0 []string) error {
+// DeleteProfiles mocks base method
+func (m *MockController) DeleteProfiles(arg0 []string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteProfile", arg0)
+	ret := m.ctrl.Call(m, "DeleteProfiles", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteProfile indicates an expected call of DeleteProfile
-func (mr *MockControllerMockRecorder) DeleteProfile(arg0 interface{}) *gomock.Call {
+// DeleteProfiles indicates an expected call of DeleteProfiles
+func (mr *MockControllerMockRecorder) DeleteProfiles(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProfile", reflect.TypeOf((*MockController)(nil).DeleteProfile), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProfiles", reflect.TypeOf((*MockController)(nil).DeleteProfiles), arg0)
 }
 
 // GetProfileForExecution mocks base method

@@ -31,9 +31,9 @@ import (
 
 const (
 	CreateNewProfileCommandName = "create"
-	DeleteProfileCommandName    = "delete"
+	DeleteProfilesCommandName   = "delete"
 	FlagProfileVerbose          = "verbose"
-	ListsProfileCommandName     = "lists"
+	ListProfilesCommandName     = "list"
 	ProfileCommandName          = "profile"
 	padding                     = 3
 	alignLeft                   = 0
@@ -61,9 +61,9 @@ var profileCommand = &cobra.Command{
 //createProfileCmd creates profile interactively by prompting for name (distinct), user, endpoint, password.
 var createProfileCmd = &cobra.Command{
 	Use:   CreateNewProfileCommandName,
-	Short: "Creates a new named profile",
+	Short: "Creates a new profile",
 	Long: fmt.Sprintf("Description:\n  " +
-		`Creates a new named profile with details like name, endpoint, user and password`),
+		`Creates a new profile with the following fields: name, endpoint, user and password.`),
 	Run: func(cmd *cobra.Command, args []string) {
 		profileController, err := getController()
 		if err != nil {
@@ -78,19 +78,19 @@ var createProfileCmd = &cobra.Command{
 	},
 }
 
-//deleteProfileCmd deletes profiles by names
-var deleteProfileCmd = &cobra.Command{
-	Use:   DeleteProfileCommandName + " profile_name ...",
-	Short: "Deletes profiles by names",
+//deleteProfilesCmd deletes profiles by names
+var deleteProfilesCmd = &cobra.Command{
+	Use:   DeleteProfilesCommandName + " profile_name ...",
+	Short: "Delete profiles by names",
 	Long: fmt.Sprintf("Description:\n  " +
-		`Deletes profiles by names if it exists in config file, permanently`),
+		`Deletes profiles by names if they exist in config file, permanently.`),
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			fmt.Println(cmd.Usage())
 			return
 		}
 		if err := deleteProfiles(args); err != nil {
-			DisplayError(err, DeleteProfileCommandName)
+			DisplayError(err, DeleteProfilesCommandName)
 			return
 		}
 	},
@@ -98,13 +98,13 @@ var deleteProfileCmd = &cobra.Command{
 
 //listProfileCmd lists profiles by names
 var listProfileCmd = &cobra.Command{
-	Use:   ListsProfileCommandName,
+	Use:   ListProfilesCommandName,
 	Short: "Lists profiles from the config file",
 	Long: fmt.Sprintf("Description:\n  " +
-		`Lists profiles from the config file`),
+		`List profiles from the config file`),
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := listsProfiles(cmd); err != nil {
-			DisplayError(err, DeleteProfileCommandName)
+		if err := listProfiles(cmd); err != nil {
+			DisplayError(err, ListProfilesCommandName)
 			return
 		}
 	},
@@ -116,13 +116,13 @@ func deleteProfiles(profiles []string) error {
 	if err != nil {
 		return err
 	}
-	return profileController.DeleteProfile(profiles)
+	return profileController.DeleteProfiles(profiles)
 }
 
 // init to register commands to its parent command to create a hierarchy
 func init() {
 	profileCommand.AddCommand(createProfileCmd)
-	profileCommand.AddCommand(deleteProfileCmd)
+	profileCommand.AddCommand(deleteProfilesCmd)
 	profileCommand.AddCommand(listProfileCmd)
 	listProfileCmd.Flags().BoolP(FlagProfileVerbose, "l", false, "shows information like name, endpoint, user")
 	GetRoot().AddCommand(profileCommand)
@@ -155,16 +155,20 @@ func CreateProfile(profileController profile.Controller, getNewProfile func(map[
 // getNewProfile gets new profile information from user using command line
 func getNewProfile(profileMap map[string]entity.Profile) entity.Profile {
 	var name string
+	fmt.Printf("Enter profile's name: ")
 	for {
-		name = getUserInputAsText("Enter profile's name", checkInputIsNotEmpty)
+		name = getUserInputAsText(checkInputIsNotEmpty)
 		if _, ok := profileMap[name]; !ok {
 			break
 		}
 		fmt.Println("profile", name, "already exists.")
 	}
-	endpoint := getUserInputAsText("Elasticsearch Endpoint", checkInputIsNotEmpty)
-	user := getUserInputAsText("User Name", checkInputIsNotEmpty)
-	password := getUserInputAsMaskedText("Password", checkInputIsNotEmpty)
+	fmt.Printf("Elasticsearch Endpoint: ")
+	endpoint := getUserInputAsText(checkInputIsNotEmpty)
+	fmt.Printf("User Name: ")
+	user := getUserInputAsText(checkInputIsNotEmpty)
+	fmt.Printf("Password: ")
+	password := getUserInputAsMaskedText(checkInputIsNotEmpty)
 	return entity.Profile{
 		Name:     name,
 		Endpoint: endpoint,
@@ -174,13 +178,12 @@ func getNewProfile(profileMap map[string]entity.Profile) entity.Profile {
 }
 
 // getUserInputAsText get value from user as text
-func getUserInputAsText(message string, isValid func(string) bool) string {
-	fmt.Printf("%s: ", message)
+func getUserInputAsText(isValid func(string) bool) string {
 	var response string
 	//Ignore return value since validation is applied below
 	_, _ = fmt.Scanln(&response)
 	if !isValid(response) {
-		return getUserInputAsText("", isValid)
+		return getUserInputAsText(isValid)
 	}
 	return strings.TrimSpace(response)
 }
@@ -196,8 +199,7 @@ func checkInputIsNotEmpty(input string) bool {
 
 // getUserInputAsMaskedText get value from user as masked text, since credentials like password
 // should not be displayed on console for security reasons
-func getUserInputAsMaskedText(message string, isValid func(string) bool) string {
-	fmt.Printf("%s: ", message)
+func getUserInputAsMaskedText(isValid func(string) bool) string {
 	maskedValue, err := terminal.ReadPassword(0)
 	if err != nil {
 		fmt.Println(err)
@@ -205,14 +207,14 @@ func getUserInputAsMaskedText(message string, isValid func(string) bool) string 
 	}
 	value := fmt.Sprintf("%s", maskedValue)
 	if !isValid(value) {
-		return getUserInputAsMaskedText("", isValid)
+		return getUserInputAsMaskedText(isValid)
 	}
 	fmt.Println()
 	return value
 }
 
-//lists profiles from the config file
-func listsProfiles(cmd *cobra.Command) error {
+//listProfiles list profiles from the config file
+func listProfiles(cmd *cobra.Command) error {
 	ok, err := cmd.Flags().GetBool(FlagProfileVerbose)
 	if err != nil {
 		return err

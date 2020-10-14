@@ -205,7 +205,7 @@ func TestControllerDeleteProfile(t *testing.T) {
 		expectedConfig.Profiles = []entity.Profile{expectedConfig.Profiles[1]}
 		mockConfigCtrl.EXPECT().Write(expectedConfig).Return(nil)
 		ctrl := New(mockConfigCtrl)
-		err := ctrl.DeleteProfile([]string{getSampleConfig().Profiles[0].Name})
+		err := ctrl.DeleteProfiles([]string{getSampleConfig().Profiles[0].Name})
 		assert.NoError(t, err)
 	})
 	t.Run("failed to delete only invalid profiles", func(t *testing.T) {
@@ -217,7 +217,7 @@ func TestControllerDeleteProfile(t *testing.T) {
 		expectedConfig.Profiles = []entity.Profile{expectedConfig.Profiles[1]}
 		mockConfigCtrl.EXPECT().Write(expectedConfig).Return(nil)
 		ctrl := New(mockConfigCtrl)
-		err := ctrl.DeleteProfile([]string{getSampleConfig().Profiles[0].Name, "invalid-profile1", "invalid-profile2"})
+		err := ctrl.DeleteProfiles([]string{getSampleConfig().Profiles[0].Name, "invalid-profile1", "invalid-profile2"})
 		assert.EqualError(t, err, "no profiles found for: invalid-profile1, invalid-profile2")
 	})
 	t.Run("config controller read failed", func(t *testing.T) {
@@ -226,7 +226,7 @@ func TestControllerDeleteProfile(t *testing.T) {
 		mockConfigCtrl := config.NewMockController(mockCtrl)
 		mockConfigCtrl.EXPECT().Read().Return(entity.Config{}, errors.New("failed to read"))
 		ctrl := New(mockConfigCtrl)
-		err := ctrl.DeleteProfile([]string{getSampleConfig().Profiles[0].Name})
+		err := ctrl.DeleteProfiles([]string{getSampleConfig().Profiles[0].Name})
 		assert.EqualError(t, err, "failed to read")
 	})
 	t.Run("config controller write failed", func(t *testing.T) {
@@ -238,7 +238,7 @@ func TestControllerDeleteProfile(t *testing.T) {
 		expectedConfig.Profiles = []entity.Profile{expectedConfig.Profiles[1]}
 		mockConfigCtrl.EXPECT().Write(expectedConfig).Return(errors.New("failed to write"))
 		ctrl := New(mockConfigCtrl)
-		err := ctrl.DeleteProfile([]string{getSampleConfig().Profiles[0].Name})
+		err := ctrl.DeleteProfiles([]string{getSampleConfig().Profiles[0].Name})
 		assert.EqualError(t, err, "failed to write")
 	})
 }
