@@ -36,8 +36,8 @@ func New(controller ad.Controller) *Handler {
 }
 
 //CreateAnomalyDetector creates detector based on file configurations
-func CreateAnomalyDetector(h *Handler, fileName string, interactive bool) error {
-	return h.CreateAnomalyDetector(fileName, interactive)
+func CreateAnomalyDetector(h *Handler, fileName string) error {
+	return h.CreateAnomalyDetector(fileName)
 }
 
 //GenerateAnomalyDetector generate sample detector to provide skeleton for users
@@ -63,7 +63,7 @@ func GenerateAnomalyDetector() ([]byte, error) {
 }
 
 //CreateAnomalyDetector creates detector based on file configurations
-func (h *Handler) CreateAnomalyDetector(fileName string, interactive bool) error {
+func (h *Handler) CreateAnomalyDetector(fileName string) error {
 	if len(fileName) < 1 {
 		return fmt.Errorf("file name cannot be empty")
 	}
@@ -75,7 +75,7 @@ func (h *Handler) CreateAnomalyDetector(fileName string, interactive bool) error
 	defer func() {
 		err := jsonFile.Close()
 		if err != nil {
-			fmt.Println("failed close json file due to ", err)
+			fmt.Println("failed to close json:", err)
 		}
 	}()
 	byteValue, _ := ioutil.ReadAll(jsonFile)
@@ -85,7 +85,7 @@ func (h *Handler) CreateAnomalyDetector(fileName string, interactive bool) error
 		return fmt.Errorf("file %s cannot be accepted due to %v", fileName, err)
 	}
 	ctx := context.Background()
-	names, err := h.CreateMultiEntityAnomalyDetector(ctx, request, interactive, true)
+	names, err := h.CreateMultiEntityAnomalyDetector(ctx, request, true, true)
 	if err != nil {
 		return err
 	}

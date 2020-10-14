@@ -17,11 +17,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	esmock "es-cli/odfe-cli/controller/es/mocks"
+	esmockctrl "es-cli/odfe-cli/controller/es/mocks"
 	entity "es-cli/odfe-cli/entity/ad"
 	adgateway "es-cli/odfe-cli/gateway/ad/mocks"
 	"es-cli/odfe-cli/mapper"
-
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -152,7 +151,7 @@ func TestController_StartDetector(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctx := context.Background()
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		assert.Error(t, ctrl.StartDetector(ctx, ""))
@@ -163,7 +162,7 @@ func TestController_StartDetector(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().StartDetector(ctx, "detectorID").Return(errors.New("no connection"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		assert.Error(t, ctrl.StartDetector(ctx, "detectorID"))
 	})
@@ -173,7 +172,7 @@ func TestController_StartDetector(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().StartDetector(ctx, "detectorID").Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		assert.NoError(t, ctrl.StartDetector(ctx, "detectorID"))
 	})
@@ -184,7 +183,7 @@ func TestController_StopDetector(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctx := context.Background()
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.StopDetector(ctx, "")
@@ -196,7 +195,7 @@ func TestController_StopDetector(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().StopDetector(ctx, "detectorID").Return(nil, errors.New("gateway failed"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.StopDetector(ctx, "detectorID")
 		assert.Error(t, err)
@@ -207,7 +206,7 @@ func TestController_StopDetector(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().StopDetector(ctx, "detectorID").Return(mapper.StringToStringPtr("Stopped Detector"), nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.StopDetector(ctx, "detectorID")
 		assert.NoError(t, err)
@@ -222,7 +221,7 @@ func TestController_CreateAnomalyDetector(t *testing.T) {
 		r := getCreateDetectorRequest()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().CreateDetector(ctx, getCreateDetector()).Return(nil, errors.New("failed to connect"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		_, err := ctrl.CreateAnomalyDetector(ctx, r)
 		assert.EqualError(t, err, "failed to connect")
@@ -234,7 +233,7 @@ func TestController_CreateAnomalyDetector(t *testing.T) {
 		r := getCreateDetectorRequest()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().CreateDetector(ctx, getCreateDetector()).Return(nil, errors.New(string(helperLoadBytes(t, "create_failed_response.json"))))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		_, err := ctrl.CreateAnomalyDetector(ctx, r)
 		assert.EqualError(t, err, "Cannot create anomaly detector with name [testdata-detector] as it's already used by detector [wR_1XXMBs3q1IVz33Sk-]")
@@ -247,7 +246,7 @@ func TestController_CreateAnomalyDetector(t *testing.T) {
 		r.Start = false
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().CreateDetector(ctx, getCreateDetector()).Return(helperLoadBytes(t, "create_response.json"), nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		detectorID, err := ctrl.CreateAnomalyDetector(ctx, r)
 		assert.NoError(t, err)
@@ -262,7 +261,7 @@ func TestController_CreateAnomalyDetector(t *testing.T) {
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().CreateDetector(ctx, getCreateDetector()).Return(helperLoadBytes(t, "create_response.json"), nil)
 		mockADGateway.EXPECT().StartDetector(ctx, mockDetectorID).Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		detectorID, err := ctrl.CreateAnomalyDetector(ctx, r)
 		assert.NoError(t, err)
@@ -277,7 +276,7 @@ func TestController_CreateAnomalyDetector(t *testing.T) {
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().CreateDetector(ctx, getCreateDetector()).Return(helperLoadBytes(t, "create_response.json"), nil)
 		mockADGateway.EXPECT().StartDetector(ctx, mockDetectorID).Return(errors.New("error"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		_, err := ctrl.CreateAnomalyDetector(ctx, r)
 		assert.EqualError(t, err, fmt.Sprintf("detector is created with id: %s, but failed to start due to error", mockDetectorID))
@@ -290,7 +289,7 @@ func TestController_DeleteDetector(t *testing.T) {
 		defer mockCtrl.Finish()
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.DeleteDetector(ctx, "", false, false)
 		assert.EqualError(t, err, "detector Id cannot be empty")
@@ -301,7 +300,7 @@ func TestController_DeleteDetector(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().DeleteDetector(ctx, mockDetectorID).Return(errors.New("gateway failed"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.DeleteDetector(ctx, mockDetectorID, false, false)
 		assert.EqualError(t, err, "gateway failed")
@@ -312,7 +311,7 @@ func TestController_DeleteDetector(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().DeleteDetector(ctx, mockDetectorID).Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.DeleteDetector(ctx, mockDetectorID, false, false)
 		assert.NoError(t, err)
@@ -323,7 +322,7 @@ func TestController_DeleteDetector(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().StopDetector(ctx, mockDetectorID).Return(nil, errors.New("failed"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.DeleteDetector(ctx, mockDetectorID, false, true)
 		assert.EqualError(t, err, "failed")
@@ -335,7 +334,7 @@ func TestController_DeleteDetector(t *testing.T) {
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().StopDetector(ctx, mockDetectorID).Return(mapper.StringToStringPtr("Stopped Detector"), nil)
 		mockADGateway.EXPECT().DeleteDetector(ctx, mockDetectorID).Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.DeleteDetector(ctx, mockDetectorID, false, true)
 		assert.NoError(t, err)
@@ -346,7 +345,7 @@ func TestController_DeleteDetector(t *testing.T) {
 		defer mockCtrl.Finish()
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("no\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -358,7 +357,7 @@ func TestController_DeleteDetector(t *testing.T) {
 		defer mockCtrl.Finish()
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		mockADGateway.EXPECT().DeleteDetector(ctx, mockDetectorID).Return(nil)
@@ -380,7 +379,7 @@ func TestController_CreateMultiEntityAnomalyDetector(t *testing.T) {
 		gatewayRequest.Filter = getFinalFilter(getRawFilter())
 		mockADGateway.EXPECT().CreateDetector(ctx, gatewayRequest).Return(helperLoadBytes(t, "create_response.json"), nil)
 		mockADGateway.EXPECT().StartDetector(ctx, mockDetectorID).Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		mockESController.EXPECT().GetDistinctValues(ctx, r.Index[0], *r.PartitionField).Return(helperConvertToInterface([]string{"localhost"}), nil)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		detectorID, err := ctrl.CreateMultiEntityAnomalyDetector(ctx, r, false, false)
@@ -402,7 +401,7 @@ func TestController_CreateMultiEntityAnomalyDetector(t *testing.T) {
 		mockADGateway.EXPECT().StartDetector(ctx, mockDetectorID).Return(nil)
 		mockADGateway.EXPECT().StopDetector(ctx, mockDetectorID).Return(mapper.StringToStringPtr("stopped"), nil)
 		mockADGateway.EXPECT().DeleteDetector(ctx, mockDetectorID).Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		mockESController.EXPECT().GetDistinctValues(ctx, r.Index[0], *r.PartitionField).Return(helperConvertToInterface([]string{"localhost", "localhost"}), nil)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		_, err := ctrl.CreateMultiEntityAnomalyDetector(ctx, r, false, false)
@@ -420,7 +419,7 @@ func TestController_CreateMultiEntityAnomalyDetector(t *testing.T) {
 		gatewayRequest.Filter = getFinalFilter()
 		mockADGateway.EXPECT().CreateDetector(ctx, gatewayRequest).Return(helperLoadBytes(t, "create_response.json"), nil)
 		mockADGateway.EXPECT().StartDetector(ctx, mockDetectorID).Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		mockESController.EXPECT().GetDistinctValues(ctx, r.Index[0], *r.PartitionField).Return(helperConvertToInterface([]string{"localhost"}), nil)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
@@ -439,7 +438,7 @@ func TestController_CreateMultiEntityAnomalyDetector(t *testing.T) {
 		gatewayRequest := getCreateDetector()
 		gatewayRequest.Name = gatewayRequest.Name + "-" + "localhost"
 		gatewayRequest.Filter = getFinalFilter(getRawFilter())
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		mockESController.EXPECT().GetDistinctValues(ctx, r.Index[0], *r.PartitionField).Return(helperConvertToInterface([]string{"localhost"}), nil)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("no\n"))
@@ -457,7 +456,7 @@ func TestController_CreateMultiEntityAnomalyDetector(t *testing.T) {
 		gatewayRequest := getCreateDetector()
 		gatewayRequest.Name = gatewayRequest.Name + "-" + "localhost"
 		gatewayRequest.Filter = getFinalFilter(getRawFilter())
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		mockESController.EXPECT().GetDistinctValues(ctx, r.Index[0], *r.PartitionField).Return(nil, nil)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		_, err := ctrl.CreateMultiEntityAnomalyDetector(ctx, r, false, false)
@@ -472,7 +471,7 @@ func TestController_CreateMultiEntityAnomalyDetector(t *testing.T) {
 		gatewayRequest := getCreateDetector()
 		gatewayRequest.Name = gatewayRequest.Name + "-" + "localhost"
 		gatewayRequest.Filter = getFinalFilter(getRawFilter())
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		mockESController.EXPECT().GetDistinctValues(ctx, r.Index[0], *r.PartitionField).Return(nil, errors.New("failed"))
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		_, err := ctrl.CreateMultiEntityAnomalyDetector(ctx, r, false, false)
@@ -492,7 +491,7 @@ func TestController_CreateMultiEntityAnomalyDetector(t *testing.T) {
 		mockADGateway.EXPECT().StartDetector(ctx, mockDetectorID).Return(nil)
 		mockADGateway.EXPECT().StopDetector(ctx, mockDetectorID).Return(mapper.StringToStringPtr("stopped"), nil)
 		mockADGateway.EXPECT().DeleteDetector(ctx, mockDetectorID).Return(errors.New("failed"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		mockESController.EXPECT().GetDistinctValues(ctx, r.Index[0], *r.PartitionField).Return(helperConvertToInterface([]string{"localhost", "localhost"}), nil)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		_, err := ctrl.CreateMultiEntityAnomalyDetector(ctx, r, false, false)
@@ -515,7 +514,7 @@ func TestController_StopDetectorByName(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctx := context.Background()
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
@@ -533,7 +532,7 @@ func TestController_StopDetectorByName(t *testing.T) {
 		mockADGateway.EXPECT().StopDetector(ctx, "detectorID").Return(nil, errors.New("gateway failed"))
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(&stdin, mockESController, mockADGateway)
 		err := ctrl.StopDetectorByName(ctx, "detector", false)
 		assert.NoError(t, err)
@@ -544,7 +543,7 @@ func TestController_StopDetectorByName(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload("detector")).Return(nil, errors.New("gateway failed"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.StopDetectorByName(ctx, "detector", false)
 		assert.Error(t, err)
@@ -557,7 +556,7 @@ func TestController_StopDetectorByName(t *testing.T) {
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload("detector")).Return(
 			helperLoadBytes(t, "search_response.json"), nil)
 		mockADGateway.EXPECT().StopDetector(ctx, "detectorID").Return(mapper.StringToStringPtr("Stopped Detector"), nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -571,7 +570,7 @@ func TestController_StartDetectorByName(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctx := context.Background()
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
@@ -589,7 +588,7 @@ func TestController_StartDetectorByName(t *testing.T) {
 		mockADGateway.EXPECT().StartDetector(ctx, "detectorID").Return(errors.New("gateway failed"))
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(&stdin, mockESController, mockADGateway)
 		err := ctrl.StartDetectorByName(ctx, "detector", false)
 		assert.NoError(t, err)
@@ -600,7 +599,7 @@ func TestController_StartDetectorByName(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload("detector")).Return(nil, errors.New("gateway failed"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.StartDetectorByName(ctx, "detector", false)
 		assert.Error(t, err)
@@ -613,7 +612,7 @@ func TestController_StartDetectorByName(t *testing.T) {
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload("detector")).Return(
 			helperLoadBytes(t, "search_response.json"), nil)
 		mockADGateway.EXPECT().StartDetector(ctx, "detectorID").Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -628,7 +627,7 @@ func TestController_DeleteDetectorByName(t *testing.T) {
 		defer mockCtrl.Finish()
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.DeleteDetectorByName(ctx, "", false, false)
 		assert.EqualError(t, err, "name cannot be empty")
@@ -641,7 +640,7 @@ func TestController_DeleteDetectorByName(t *testing.T) {
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload(mockDetectorName)).Return(
 			helperLoadBytes(t, "search_response.json"), nil)
 		mockADGateway.EXPECT().DeleteDetector(ctx, "detectorID").Return(errors.New("gateway failed"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -656,7 +655,7 @@ func TestController_DeleteDetectorByName(t *testing.T) {
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload(mockDetectorName)).Return(
 			helperLoadBytes(t, "search_response.json"), nil)
 		mockADGateway.EXPECT().DeleteDetector(ctx, "detectorID").Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -671,7 +670,7 @@ func TestController_DeleteDetectorByName(t *testing.T) {
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload(mockDetectorName)).Return(
 			helperLoadBytes(t, "search_response.json"), nil)
 		mockADGateway.EXPECT().StopDetector(ctx, "detectorID").Return(nil, errors.New("failed"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -687,7 +686,7 @@ func TestController_DeleteDetectorByName(t *testing.T) {
 			helperLoadBytes(t, "search_response.json"), nil)
 		mockADGateway.EXPECT().StopDetector(ctx, "detectorID").Return(mapper.StringToStringPtr("Stopped Detector"), nil)
 		mockADGateway.EXPECT().DeleteDetector(ctx, "detectorID").Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -700,7 +699,7 @@ func TestController_DeleteDetectorByName(t *testing.T) {
 		defer mockCtrl.Finish()
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("no\n"))
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload(mockDetectorName)).Return(
@@ -714,7 +713,7 @@ func TestController_DeleteDetectorByName(t *testing.T) {
 		defer mockCtrl.Finish()
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload(mockDetectorName)).Return(
@@ -751,7 +750,7 @@ func TestController_GetDetectorByName(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctx := context.Background()
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		_, err := ctrl.GetDetectorsByName(ctx, "", false)
@@ -763,7 +762,7 @@ func TestController_GetDetectorByName(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload("detector")).Return(nil, errors.New("gateway failed"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		_, err := ctrl.GetDetectorsByName(ctx, "detector", false)
 		assert.EqualError(t, err, "gateway failed")
@@ -774,7 +773,7 @@ func TestController_GetDetectorByName(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload("detector")).Return([]byte(`{}`), nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		actual, err := ctrl.GetDetectorsByName(ctx, "detector", false)
 		assert.NoError(t, err)
@@ -790,7 +789,7 @@ func TestController_GetDetectorByName(t *testing.T) {
 		mockADGateway.EXPECT().GetDetector(ctx, "detectorID").Return(nil, errors.New("gateway failed"))
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(&stdin, mockESController, mockADGateway)
 		_, err := ctrl.GetDetectorsByName(ctx, "detector", false)
 		assert.EqualError(t, err, "gateway failed")
@@ -803,7 +802,7 @@ func TestController_GetDetectorByName(t *testing.T) {
 		mockADGateway.EXPECT().SearchDetector(ctx, getSearchPayload("detector")).Return(
 			helperLoadBytes(t, "search_response.json"), nil)
 		mockADGateway.EXPECT().GetDetector(ctx, "detectorID").Return(helperLoadBytes(t, "get_response.json"), nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -861,7 +860,7 @@ func TestController_UpdateDetector(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctx := context.Background()
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.UpdateDetector(ctx, invalidInput, true, true)
@@ -873,7 +872,7 @@ func TestController_UpdateDetector(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().GetDetector(ctx, "m4ccEnIBTXsGi3mvMt9p").Return(helperLoadBytes(t, "get_response.json"), nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		staleDetector := input
 		staleDetector.LastUpdatedAt = input.LastUpdatedAt - 100
 		var stdin bytes.Buffer
@@ -888,7 +887,7 @@ func TestController_UpdateDetector(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().GetDetector(ctx, "m4ccEnIBTXsGi3mvMt9p").Return(helperLoadBytes(t, "get_response.json"), nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("no\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -901,7 +900,7 @@ func TestController_UpdateDetector(t *testing.T) {
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().StopDetector(ctx, "m4ccEnIBTXsGi3mvMt9p").Return(nil, errors.New("failed to stop detector"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -915,7 +914,7 @@ func TestController_UpdateDetector(t *testing.T) {
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().GetDetector(ctx, "m4ccEnIBTXsGi3mvMt9p").Return(
 			nil, errors.New("failed to get detector"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		ctrl := New(os.Stdin, mockESController, mockADGateway)
 		err := ctrl.UpdateDetector(ctx, input, false, false)
 		assert.EqualError(t, err, "failed to get detector")
@@ -927,7 +926,7 @@ func TestController_UpdateDetector(t *testing.T) {
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
 		mockADGateway.EXPECT().GetDetector(ctx, "m4ccEnIBTXsGi3mvMt9p").Return(helperLoadBytes(t, "get_response.json"), nil)
 		mockADGateway.EXPECT().UpdateDetector(ctx, "m4ccEnIBTXsGi3mvMt9p", &request).Return(errors.New("failed to update"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -942,7 +941,7 @@ func TestController_UpdateDetector(t *testing.T) {
 		mockADGateway.EXPECT().GetDetector(ctx, "m4ccEnIBTXsGi3mvMt9p").Return(helperLoadBytes(t, "get_response.json"), nil)
 		mockADGateway.EXPECT().UpdateDetector(ctx, "m4ccEnIBTXsGi3mvMt9p", &request).Return(nil)
 		mockADGateway.EXPECT().StartDetector(ctx, "m4ccEnIBTXsGi3mvMt9p").Return(errors.New("failed to start"))
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)
@@ -954,7 +953,7 @@ func TestController_UpdateDetector(t *testing.T) {
 		defer mockCtrl.Finish()
 		ctx := context.Background()
 		mockADGateway := adgateway.NewMockGateway(mockCtrl)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		staleDetector := input
 		staleDetector.LastUpdatedAt = input.LastUpdatedAt - 100
 		mockADGateway.EXPECT().StopDetector(ctx, "m4ccEnIBTXsGi3mvMt9p").Return(nil, nil)
@@ -973,7 +972,7 @@ func TestController_UpdateDetector(t *testing.T) {
 		mockADGateway.EXPECT().GetDetector(ctx, "m4ccEnIBTXsGi3mvMt9p").Return(helperLoadBytes(t, "get_response.json"), nil)
 		mockADGateway.EXPECT().UpdateDetector(ctx, "m4ccEnIBTXsGi3mvMt9p", &request).Return(nil)
 		mockADGateway.EXPECT().StartDetector(ctx, "m4ccEnIBTXsGi3mvMt9p").Return(nil)
-		mockESController := esmock.NewMockController(mockCtrl)
+		mockESController := esmockctrl.NewMockController(mockCtrl)
 		var stdin bytes.Buffer
 		stdin.Write([]byte("yes\n"))
 		ctrl := New(&stdin, mockESController, mockADGateway)

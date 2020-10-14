@@ -39,8 +39,8 @@ const (
 	alignLeft                   = 0
 )
 
-//getController gets controller based on config file
-func getController() (profile.Controller, error) {
+//GetProfileController gets controller based on config file
+func GetProfileController() (profile.Controller, error) {
 	cfgFile, err := GetRoot().Flags().GetString(flagConfig)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ var createProfileCmd = &cobra.Command{
 	Long: fmt.Sprintf("Description:\n  " +
 		`Creates a new profile with the following fields: name, endpoint, user and password.`),
 	Run: func(cmd *cobra.Command, args []string) {
-		profileController, err := getController()
+		profileController, err := GetProfileController()
 		if err != nil {
 			DisplayError(err, CreateNewProfileCommandName)
 			return
@@ -112,7 +112,7 @@ var listProfileCmd = &cobra.Command{
 
 //deleteProfiles deletes profiles based on names
 func deleteProfiles(profiles []string) error {
-	profileController, err := getController()
+	profileController, err := GetProfileController()
 	if err != nil {
 		return err
 	}
@@ -220,7 +220,7 @@ func listProfiles(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-	profileController, err := getController()
+	profileController, err := GetProfileController()
 	if err != nil {
 		return err
 	}

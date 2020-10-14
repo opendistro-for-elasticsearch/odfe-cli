@@ -139,7 +139,7 @@ func (c controller) DeleteDetector(ctx context.Context, id string, interactive b
 		proceed = c.askForConfirmation(
 			mapper.StringToStringPtr(
 				fmt.Sprintf(
-					"esad will delete detector: %s . Do you want to proceed? please type (y)es or (n)o and then press enter:",
+					"odfe-cli will delete detector: %s . Do you want to proceed? please type (y)es or (n)o and then press enter:",
 					id,
 				),
 			),
@@ -315,7 +315,7 @@ func (c controller) CreateMultiEntityAnomalyDetector(ctx context.Context, reques
 		proceed = c.askForConfirmation(
 			mapper.StringToStringPtr(
 				fmt.Sprintf(
-					"esad will create %d detector(s). Do you want to proceed? please type (y)es or (n)o and then press enter:",
+					"odfe-cli will create %d detector(s). Do you want to proceed? please type (y)es or (n)o and then press enter:",
 					len(filterValues),
 				),
 			),
@@ -398,7 +398,7 @@ func (c controller) getDetectorsToProcess(ctx context.Context, method string, pa
 
 	proceed := c.askForConfirmation(
 		mapper.StringToStringPtr(
-			fmt.Sprintf("esad will %s above matched detector(s). Do you want to proceed? please type (y)es or (n)o and then press enter:", method),
+			fmt.Sprintf("odfe will %s above matched detector(s). Do you want to proceed? please type (y)es or (n)o and then press enter:", method),
 		),
 	)
 	if !proceed {
@@ -433,11 +433,12 @@ func (c controller) processDetectorByAction(ctx context.Context, pattern string,
 	if bar != nil {
 		bar.Finish()
 	}
-	if len(failedDetectors) > 0 {
-		fmt.Printf("\nfailed to %s %d following detector(s)\n", action, len(failedDetectors))
-		for _, detector := range failedDetectors {
-			fmt.Println(detector)
-		}
+	if len(failedDetectors) < 1 {
+		return nil
+	}
+	fmt.Printf("\nfailed to %s %d following detector(s)\n", action, len(failedDetectors))
+	for _, detector := range failedDetectors {
+		fmt.Println(detector)
 	}
 	return nil
 }
@@ -541,7 +542,7 @@ func (c controller) UpdateDetector(ctx context.Context, input entity.UpdateDetec
 	proceed := c.askForConfirmation(
 		mapper.StringToStringPtr(
 			fmt.Sprintf(
-				"esad will update detector: %s . Do you want to proceed? please type (y)es or (n)o and then press enter:",
+				"odfe-cli will update detector: %s . Do you want to proceed? please type (y)es or (n)o and then press enter:",
 				input.ID,
 			),
 		),

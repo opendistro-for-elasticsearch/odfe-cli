@@ -30,12 +30,12 @@ const (
 	folderPermission      = 0755 // only owner can write, while everyone can read and execute
 	failureExitCode       = -1   // non zero code is considered failure
 	odfeConfigEnvVarName  = "ODFE_CLI_CONFIG"
-	rootCommandName       = "odfe-cli"
+	RootCommandName       = "odfe-cli"
 	version               = "0.1"
 )
 
 var rootCommand = &cobra.Command{
-	Use:     rootCommandName,
+	Use:     RootCommandName,
 	Short:   "odfe-cli is an unified command line interface to manage odfe clusters",
 	Version: version,
 }
@@ -53,7 +53,7 @@ func Execute() error {
 func GetDefaultConfigFilePath() string {
 	return filepath.Join(
 		getDefaultConfigFolderRootPath(),
-		fmt.Sprintf(".%s", rootCommandName),
+		fmt.Sprintf(".%s", RootCommandName),
 		fmt.Sprintf("%s.%s", defaultConfigFileName, configFileType),
 	)
 }
