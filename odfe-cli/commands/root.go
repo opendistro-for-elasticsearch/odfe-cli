@@ -124,6 +124,5 @@ func DisplayError(err error, cmdName string) {
 	if err != nil {
 		fmt.Println(cmdName, "command failed")
 		fmt.Println("Reason:", err)
-		os.Exit(failureExitCode)
 	}
 }

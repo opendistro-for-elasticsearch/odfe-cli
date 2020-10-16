@@ -241,6 +241,9 @@ func displayCompleteProfiles(p profile.Controller) (err error) {
 	if profiles, err = p.GetProfiles(); err != nil {
 		return
 	}
+	if len(profiles) < 1 {
+		return fmt.Errorf("no profiles found")
+	}
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', alignLeft)
 	defer func() {
 		err = w.Flush()
@@ -259,6 +262,9 @@ func displayProfileNames(p profile.Controller) (err error) {
 	var names []string
 	if names, err = p.GetProfileNames(); err != nil {
 		return
+	}
+	if len(names) < 1 {
+		return fmt.Errorf("no profiles found")
 	}
 	for _, name := range names {
 		fmt.Println(name)

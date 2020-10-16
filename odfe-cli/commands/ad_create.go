@@ -31,9 +31,11 @@ const (
 //this command will prompt for confirmation on number of detectors will be created on executions.
 var createCmd = &cobra.Command{
 	Use:   commandCreate + " [detector-configuration-file-path ...] [flags]",
-	Short: "Creates detectors based on configurations",
+	Short: "Create detectors based on configurations using file",
 	Long: fmt.Sprintf("Description:\n  " +
-		`Creates detectors based on a configuration specified in file path`),
+		`Create detectors based on a configuration specified in file path
+  To begin, use --generate-template flag to generate sample configuration, save this template locally and update based on your use case.
+  use 'odfe-cli ad create file-path' to create detector.`),
 	Run: func(cmd *cobra.Command, args []string) {
 		generate, _ := cmd.Flags().GetBool(generate)
 		if generate {

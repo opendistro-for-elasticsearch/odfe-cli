@@ -31,8 +31,10 @@ const (
 //updateDetectorsCmd updates detectors based on file configuration
 var updateDetectorsCmd = &cobra.Command{
 	Use:   updateDetectorsCommandName + " [detector-configuration-file-path ...] [flags]",
-	Short: "Updates detectors based on configuration",
-	Long:  `Updates detectors based on configurations specified by file path`,
+	Short: "Update detectors based on configuration",
+	Long: fmt.Sprintf("Description:\n  " +
+		`Update detectors based on configurations specified by file path.
+  Use 'odfe-cli ad download detector-name' to download configurations. Make necessary changes to file and update detector using 'odfe-cli ad update file-path'`),
 	Run: func(cmd *cobra.Command, args []string) {
 		//If no args, display usage
 		if len(args) < 1 {
@@ -52,8 +54,8 @@ var updateDetectorsCmd = &cobra.Command{
 
 func init() {
 	GetADCommand().AddCommand(updateDetectorsCmd)
-	updateDetectorsCmd.Flags().BoolP(forceFlagName, "f", false, "Will stop detector and update it")
-	updateDetectorsCmd.Flags().BoolP(startFlagName, "s", false, "Will start detector if update is successful")
+	updateDetectorsCmd.Flags().BoolP(forceFlagName, "f", false, "stop detector and update forcefully")
+	updateDetectorsCmd.Flags().BoolP(startFlagName, "s", false, "start detector if update is successful")
 }
 
 func updateDetectors(fileNames []string, force bool, start bool) error {
