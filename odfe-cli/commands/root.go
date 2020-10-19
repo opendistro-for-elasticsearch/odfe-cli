@@ -28,7 +28,6 @@ const (
 	defaultConfigFileName = "config"
 	flagConfig            = "config"
 	folderPermission      = 0755 // only owner can write, while everyone can read and execute
-	failureExitCode       = -1   // non zero code is considered failure
 	odfeConfigEnvVarName  = "ODFE_CLI_CONFIG"
 	RootCommandName       = "odfe-cli"
 	version               = "0.1"

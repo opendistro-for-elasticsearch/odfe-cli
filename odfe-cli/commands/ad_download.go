@@ -31,7 +31,7 @@ const (
 	jsonFileExtension            = "json"
 )
 
-//getDetectorsCmd prints detectors configuration based on id, name or name regex pattern.
+//downloadDetectorsCmd downloads detectors configuration based on id, name or name regex pattern.
 //default input is name pattern, one can change this format to be id by passing --id flag
 var downloadDetectorsCmd = &cobra.Command{
 	Use:   downloadDetectorsCommandName + " detector_name ..." + " [flags] ",
@@ -74,6 +74,8 @@ func WriteInFile(cmd *cobra.Command, d *entity.DetectorOutput) error {
 	return FPrint(f, d)
 }
 
+//isCreateFileAllowed returns true if no file exists, if file already exists,
+//confirms with user, whether to overwrite file or not.
 func isCreateFileAllowed(path string) bool {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return true
@@ -81,6 +83,7 @@ func isCreateFileAllowed(path string) bool {
 	return askForConfirmation(path)
 }
 
+//askForConfirmation get user confirmation before overwriting the file
 func askForConfirmation(path string) bool {
 
 	fmt.Printf("overwrite %s? (y/n)", filepath.Base(path))

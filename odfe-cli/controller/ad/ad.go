@@ -124,7 +124,7 @@ func (c controller) askForConfirmation(message *string) bool {
 	case "n", "no":
 		return false
 	default:
-		fmt.Printf("I'm sorry but I didn't get what you meant, please type (y)es or (n)o and then press enter:")
+		fmt.Printf("please type (y)es or (n)o and then press enter:")
 		return c.askForConfirmation(mapper.StringToStringPtr(""))
 	}
 }
@@ -257,6 +257,7 @@ func getFilterValues(ctx context.Context, request entity.CreateDetectorRequest, 
 	return filterValues, nil
 }
 
+//createProgressBar creates progress bar with suffix as counter and number of action completed, prefix as percentage
 func createProgressBar(total int) *pb.ProgressBar {
 	template := `{{string . "prefix"}}{{percent . }} {{bar . "[" "=" ">" "_" "]" }} {{counters . }}{{string . "suffix"}}`
 	bar := pb.New(total)
@@ -378,7 +379,9 @@ func (c controller) SearchDetectorByName(ctx context.Context, name string) ([]en
 	return detectors, nil
 }
 
-func (c controller) getDetectorsToProcess(ctx context.Context, method string, pattern string) ([]entity.Detector, error) {
+//getDetectors expand pattern to fetch list of matched detectors and return detectors accepted by user
+// for process
+func (c controller) getDetectors(ctx context.Context, method string, pattern string) ([]entity.Detector, error) {
 	if len(pattern) < 1 {
 		return nil, fmt.Errorf("name cannot be empty")
 	}
@@ -408,7 +411,7 @@ func (c controller) getDetectorsToProcess(ctx context.Context, method string, pa
 }
 
 func (c controller) processDetectorByAction(ctx context.Context, pattern string, action string, f func(c context.Context, s string) error, display bool) error {
-	matchedDetectors, err := c.getDetectorsToProcess(ctx, action, pattern)
+	matchedDetectors, err := c.getDetectors(ctx, action, pattern)
 	if err != nil {
 		return err
 	}
@@ -458,7 +461,7 @@ func (c controller) StopDetectorByName(ctx context.Context, pattern string, disp
 //DeleteDetectorByName deletes detector based on name pattern. It first calls SearchDetectorByName and then
 // gets lists of detectorId and call DeleteDetector to delete individual detectors
 func (c controller) DeleteDetectorByName(ctx context.Context, name string, force bool, display bool) error {
-	matchedDetectors, err := c.getDetectorsToProcess(ctx, "delete", name)
+	matchedDetectors, err := c.getDetectors(ctx, "delete", name)
 	if err != nil {
 		return err
 	}
@@ -495,7 +498,7 @@ func (c controller) DeleteDetectorByName(ctx context.Context, name string, force
 //GetDetectorsByName get detector based on name pattern. It first calls SearchDetectorByName and then
 // gets lists of detectorId and call GetDetector to get individual detector configuration
 func (c controller) GetDetectorsByName(ctx context.Context, pattern string, display bool) ([]*entity.DetectorOutput, error) {
-	matchedDetectors, err := c.getDetectorsToProcess(ctx, "fetch", pattern)
+	matchedDetectors, err := c.getDetectors(ctx, "fetch", pattern)
 	if err != nil {
 		return nil, err
 	}

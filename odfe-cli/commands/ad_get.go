@@ -73,6 +73,7 @@ func printDetectors(display Display, cmd *cobra.Command, detectors []string) err
 	return fprint(cmd, display, results)
 }
 
+//getDetectors fetch detector from controller
 func getDetectors(
 	commandHandler *ad.Handler, args []string, get func(*ad.Handler, string) (
 		[]*entity.DetectorOutput, error)) ([]*entity.DetectorOutput, error) {

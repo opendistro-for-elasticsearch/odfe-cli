@@ -52,6 +52,7 @@ var createCmd = &cobra.Command{
 	},
 }
 
+//generateTemplate prints sample detector configuration
 func generateTemplate() {
 	detector, _ := handler.GenerateAnomalyDetector()
 	fmt.Println(string(detector))
@@ -63,6 +64,7 @@ func init() {
 
 }
 
+//createDetectors create detectors based on configurations from fileNames
 func createDetectors(fileNames []string) error {
 
 	commandHandler, err := GetADHandler()

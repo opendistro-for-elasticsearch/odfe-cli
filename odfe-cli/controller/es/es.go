@@ -25,7 +25,7 @@ import (
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen  -destination=mocks/mock_es.go -package=mocks . Controller
 
-//Controller is an interface for ES Cluster to get distinct values
+//Controller is an interface for Elasticsearch
 type Controller interface {
 	GetDistinctValues(ctx context.Context, index string, field string) ([]interface{}, error)
 }

@@ -59,6 +59,7 @@ func init() {
 	deleteDetectorsCmd.Flags().BoolP(deleteDetectorIDFlagName, "", false, "input is detector's id")
 }
 
+//deleteDetectors deletes detectors with force by calling delete method provided
 func deleteDetectors(detectors []string, force bool, f func(*handler.Handler, string, bool) error) error {
 	commandHandler, err := GetADHandler()
 	if err != nil {
