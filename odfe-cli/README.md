@@ -2,21 +2,19 @@
 
 ODFE Command Line Interface (odfe-cli) is an open source tool that enables customers to manage their ODFE  clusters 
 using CLI or command-line-shell, additionally CLI will allow customers  to configure and manage ODFE plugins 
-configurations like **Anomaly detections**, **Alerting**, **SQL** and access **Elasticsearch** features from 
-command line with prominence on automation.
+like **Anomaly Detections**, **Alerting**, **SQL** and access **Elasticsearch** features from 
+the command line with prominence on automation.
 
-With minimal configuration, ODFE CLI enables users to start executing commands that implement functionality equivalent 
-and much more that provided by Kibana from the command prompt in your favorite terminal programs. As a programmer or 
-an admin, you will constantly want to perform ad hoc operations-things that Kibana may not support.
+With minimal configuration, odfe-cli enables users to execute commands runs from Kibana as well as
+additional ad hoc commands used to manage an Elasticsearch cluster.
 
-ODFE CLI is better suited when you want to quickly combine a couple of commands to perform a task. These commands are 
-powerful and concise. And, because shell commands can be combined into script files , 
-one can build sequence of commands to automate operations that they do often.
+odfe-cli is better suited when you want to quickly combine a couple of commands to perform a task. These commands are 
+powerful and concise. ecause shell commands can be strung together in scripts, a user can easily build a complex
+sequence of commands to automate frequently run operations.
 
 ## To start developing odfe-cli
-if you want to build odfe-cli right way, follow the steps below
 
-## Minimum Requirements
+### Minimum Requirements
 
 odfe-cli shares the same [minimum requirements](https://github.com/golang/go/wiki/MinimumRequirements#minimum-requirements)
   as Go:
@@ -25,12 +23,12 @@ odfe-cli shares the same [minimum requirements](https://github.com/golang/go/wik
 - FreeBSD 11.2 or later
 - MacOS 10.11 El Capitan or later
 
-## Installation:
+### Installation:
 
 You can download the binaries directly from the [downloads](https://opendistro.github.io/for-elasticsearch/downloads.html) page
 or from the [releases](https://github.com/opendistro-for-elasticsearch/es-cli/releases) section.
 
-### From Source:
+#### From Source:
 odfe-cli requires Go version 1.14 or newer
 1. Install [Go](https://golang.org/doc/install) > = 1.14
 2. Clone the repository
@@ -38,11 +36,15 @@ odfe-cli requires Go version 1.14 or newer
     cd $GOPATH/src
     git clone git@github.com:opendistro-for-elasticsearch/es-cli.git
     ```
-3. Run `build` from the source directory
+3. Run build from source directory to generate binary
    ```
    cd es-cli/odfe-cli
    go build .
    ```
+4. Make binary executable
+    ```
+    chmod +x ./odfe-cli
+    ```
 
 ## How to use it:
 
