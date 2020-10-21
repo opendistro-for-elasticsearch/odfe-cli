@@ -28,12 +28,12 @@ const (
 	startFlagName              = "start"
 )
 
-//updateDetectorsCmd updates detectors based on file configuration
+//updateDetectorsCmd updates detectors with configuration from input file
 var updateDetectorsCmd = &cobra.Command{
 	Use:   updateDetectorsCommandName + " [detector-configuration-file-path ...] [flags]",
-	Short: "Update detectors based on configuration",
+	Short: "Update detectors with configuration from input file",
 	Long: fmt.Sprintf("Description:\n  " +
-		`Update detectors based on configurations specified by file path.
+		`Update detectors with configuration from input file.
   Use 'odfe-cli ad download detector-name' to download configurations. Make necessary changes to file and update detector using 'odfe-cli ad update file-path'`),
 	Run: func(cmd *cobra.Command, args []string) {
 		//If no args, display usage

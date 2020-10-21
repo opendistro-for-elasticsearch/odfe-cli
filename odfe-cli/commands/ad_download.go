@@ -35,10 +35,11 @@ const (
 //default input is name pattern, one can change this format to be id by passing --id flag
 var downloadDetectorsCmd = &cobra.Command{
 	Use:   downloadDetectorsCommandName + " detector_name ..." + " [flags] ",
-	Short: "Download detectors based on list of id, name or name regex pattern ",
+	Short: "Download detectors based on list of ids, names or name regex patterns ",
 	Long: fmt.Sprintf("Description:\n  " +
-		`Download detectors based on list of user input. Use "" to make sure the name does not match with pwd lists'.
-  The default input is detector name, use --id flag if input is detector id instead of name`),
+		`Download detectors based on list of user input. Wrap regex patterns in quotation marks to prevent the terminal 
+  from matching the patterns against the files in the current directory. The default input is detector name, 
+  use --id flag if input is detector id instead of name`),
 	Run: func(cmd *cobra.Command, args []string) {
 		//If no args, display usage
 		if len(args) < 1 {

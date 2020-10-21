@@ -32,7 +32,7 @@ const (
 //default input is name pattern, one can change this format to be id by passing --id flag
 var deleteDetectorsCmd = &cobra.Command{
 	Use:   deleteDetectorsCommandName + " detector_name ..." + " [flags] ",
-	Short: "Delete detectors based on list of id, name or name regex pattern ",
+	Short: "Delete detectors based on list of ids, names or name regex patterns ",
 	Long: fmt.Sprintf("Description:\n  " +
 		`Delete detectors based on list of user input. Use "" to make sure the name does not match with pwd lists'.
   The default input is detector name, use --id flag if input is detector id instead of name`),

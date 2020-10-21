@@ -35,7 +35,7 @@ const (
 //default input is name pattern, one can change this format to be id by passing --id flag
 var getDetectorsCmd = &cobra.Command{
 	Use:   getDetectorsCommandName + " detector_name ..." + " [flags] ",
-	Short: "Get detectors based on list of id, name or name regex pattern ",
+	Short: "Get detectors based on list of ids, names or name regex patterns ",
 	Long: fmt.Sprintf("Description:\n  " +
 		`Get detectors based on list of user input. Use "" to make sure the name does not match with pwd lists'.
   The default input is detector name, use --id flag if input is detector id instead of name`),

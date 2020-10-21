@@ -28,11 +28,11 @@ const (
 	idFlagName                = "id"
 )
 
-//startDetectorsCmd stop detectors based on id, name or name regex pattern.
+//startDetectorsCmd start detectors based on id, name or name regex pattern.
 //default input is name pattern, one can change this format to be id by passing --id flag
 var startDetectorsCmd = &cobra.Command{
 	Use:   startDetectorsCommandName + " detector_name ..." + " [flags] ",
-	Short: "Start detectors based on list of id, name or name regex pattern ",
+	Short: "Start detectors based on list of ids, names or name regex patterns ",
 	Long: fmt.Sprintf("Description:\n  " +
 		`Start detectors based on list of user input. Use "" to make sure the name does not match with pwd lists'.
   The default input is detector name, use --id flag if input is detector id instead of name`),
@@ -55,7 +55,7 @@ var startDetectorsCmd = &cobra.Command{
 //default input is name pattern, one can change this format to be id by passing --id flag
 var stopDetectorsCmd = &cobra.Command{
 	Use:   stopDetectorsCommandName + " detector_name ..." + " [flags] ",
-	Short: "Stop detectors based on list of id, name or name regex pattern ",
+	Short: "Stop detectors based on list of ids, names or name regex patterns ",
 	Long: fmt.Sprintf("Description:\n  " +
 		`Stop detectors based on pattern, use "" to make sure the name is not matched with pwd lists'`),
 	Run: func(cmd *cobra.Command, args []string) {
