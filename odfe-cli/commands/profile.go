@@ -53,9 +53,9 @@ var profileCommand = &cobra.Command{
 	Use:   ProfileCommandName + " sub-command",
 	Short: "Manage collection of settings and credentials that you can apply to an odfe-cli command",
 	Long: fmt.Sprintf("Description:\n  " +
-		`A named profile is a collection of settings and credentials that you can apply to an odfe-cli command.
-  When you specify a profile for a command (eg: odfe-cli <command> --profile <profile_name> ), its settings and credentials are used to run that command.
-  To configure a default profile for commands, either specify the default profile name in an environment variable (ODFE_PROFILE) or create a profile named 'default'.`),
+		"A named profile is a collection of settings and credentials that you can apply to an odfe-cli command. "+
+  "When you specify a profile for a command (eg: `odfe-cli <command> --profile <profile_name>` ), its settings and credentials are used to run that command. "+
+  "To configure a default profile for commands, either specify the default profile name in an environment variable (ODFE_PROFILE) or create a profile named `default`."),
 }
 
 //createProfileCmd creates profile interactively by prompting for name (distinct), user, endpoint, password.

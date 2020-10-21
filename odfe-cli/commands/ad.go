@@ -43,7 +43,7 @@ var adCommand = &cobra.Command{
 }
 
 func init() {
-	adCommand.PersistentFlags().StringP(flagProfileName, "p", "", "use a specific profile from your config file.")
+	adCommand.PersistentFlags().StringP(flagProfileName, "p", "", "Use a specific profile from your config file.")
 	GetRoot().AddCommand(adCommand)
 }
 

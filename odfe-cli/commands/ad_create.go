@@ -33,9 +33,9 @@ var createCmd = &cobra.Command{
 	Use:   commandCreate + " [detector-configuration-file-path ...] [flags]",
 	Short: "Create detectors with configuration from input file",
 	Long: fmt.Sprintf("Description:\n  " +
-		`Create detectors with configuration from input file path
-  To begin, use --generate-template flag to generate sample configuration, save this template locally and update based on your use case.
-  use 'odfe-cli ad create file-path' to create detector.`),
+		"Create detectors with configuration from input file path" +
+  "To begin, use --generate-template flag to generate sample configuration, save this template locally and update based on your use case. "+
+  "Use `odfe-cli ad create file-path` to create detector."),
 	Run: func(cmd *cobra.Command, args []string) {
 		generate, _ := cmd.Flags().GetBool(generate)
 		if generate {

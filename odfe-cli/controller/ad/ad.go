@@ -139,7 +139,7 @@ func (c controller) DeleteDetector(ctx context.Context, id string, interactive b
 		proceed = c.askForConfirmation(
 			mapper.StringToStringPtr(
 				fmt.Sprintf(
-					"odfe-cli will delete detector: %s . Do you want to proceed? please type (y)es or (n)o and then press enter:",
+					"odfe-cli will delete detector: %s . Do you want to proceed? Y/N ",
 					id,
 				),
 			),
@@ -401,7 +401,7 @@ func (c controller) getDetectors(ctx context.Context, method string, pattern str
 
 	proceed := c.askForConfirmation(
 		mapper.StringToStringPtr(
-			fmt.Sprintf("odfe will %s above matched detector(s). Do you want to proceed? please type (y)es or (n)o and then press enter:", method),
+			fmt.Sprintf("odfe will %s above matched detector(s). Do you want to proceed? Y/N ", method),
 		),
 	)
 	if !proceed {
@@ -545,7 +545,7 @@ func (c controller) UpdateDetector(ctx context.Context, input entity.UpdateDetec
 	proceed := c.askForConfirmation(
 		mapper.StringToStringPtr(
 			fmt.Sprintf(
-				"odfe-cli will update detector: %s . Do you want to proceed? please type (y)es or (n)o and then press enter:",
+				"odfe-cli will update detector: %s . Do you want to proceed? Y/N ",
 				input.ID,
 			),
 		),

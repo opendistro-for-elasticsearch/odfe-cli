@@ -70,7 +70,7 @@ func getDefaultConfigFolderRootPath() string {
 func init() {
 	cobra.OnInitialize()
 	configFilePath := GetDefaultConfigFilePath()
-	rootCommand.PersistentFlags().StringP(flagConfig, "c", "", fmt.Sprintf("config file default is %s", configFilePath))
+	rootCommand.PersistentFlags().StringP(flagConfig, "c", "", fmt.Sprintf("Configuration file default is %s", configFilePath))
 }
 
 // GetConfigFilePath gets config file path for execution
