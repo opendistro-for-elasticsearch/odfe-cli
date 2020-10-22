@@ -30,11 +30,11 @@ const (
 
 //updateDetectorsCmd updates detectors with configuration from input file
 var updateDetectorsCmd = &cobra.Command{
-	Use:   updateDetectorsCommandName + " [detector-configuration-file-path ...] [flags]",
-	Short: "Update detectors with configuration from input file",
+	Use:   updateDetectorsCommandName + " json-file-path ... [flags]",
+	Short: "Update detectors based on JSON files",
 	Long: fmt.Sprintf("Description:\n  " +
-		`Update detectors with configuration from input file.
-  Use 'odfe-cli ad download detector-name' to download configurations. Make necessary changes to file and update detector using 'odfe-cli ad update file-path'`),
+		"Update detectors based on JSON files. To begin, use `odfe-cli ad download detector-name` to download detector and update it for your use case." +
+		"Then use `odfe-cli ad update file-path` to update detector"),
 	Run: func(cmd *cobra.Command, args []string) {
 		//If no args, display usage
 		if len(args) < 1 {
@@ -54,8 +54,10 @@ var updateDetectorsCmd = &cobra.Command{
 
 func init() {
 	GetADCommand().AddCommand(updateDetectorsCmd)
-	updateDetectorsCmd.Flags().BoolP(forceFlagName, "f", false, "stop detector and update forcefully")
-	updateDetectorsCmd.Flags().BoolP(startFlagName, "s", false, "start detector if update is successful")
+	updateDetectorsCmd.Flags().BoolP(forceFlagName, "f", false, "Stop detector and update forcefully")
+	updateDetectorsCmd.Flags().BoolP(startFlagName, "s", false, "Start detector if update is successful")
+	updateDetectorsCmd.Flags().StringP(flagProfileName, "p", "", "Use a specific profile from your configuration file.")
+	updateDetectorsCmd.Flags().BoolP("help", "h", false, "Help for "+updateDetectorsCommandName)
 }
 
 func updateDetectors(fileNames []string, force bool, start bool) error {

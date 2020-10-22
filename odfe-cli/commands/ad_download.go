@@ -35,11 +35,11 @@ const (
 //default input is name pattern, one can change this format to be id by passing --id flag
 var downloadDetectorsCmd = &cobra.Command{
 	Use:   downloadDetectorsCommandName + " detector_name ..." + " [flags] ",
-	Short: "Download detectors based on list of ids, names or name regex patterns ",
+	Short: "Download detectors based on a list of IDs, names, or name regex patterns",
 	Long: fmt.Sprintf("Description:\n  " +
 		`Download detectors based on list of user input. Wrap regex patterns in quotation marks to prevent the terminal 
   from matching the patterns against the files in the current directory. The default input is detector name, 
-  use --id flag if input is detector id instead of name`),
+  use --id flag if input is detector ID instead of name`),
 	Run: func(cmd *cobra.Command, args []string) {
 		//If no args, display usage
 		if len(args) < 1 {
@@ -101,17 +101,19 @@ func askForConfirmation(path string) bool {
 	case "n", "no", "\n":
 		return false
 	default:
-		fmt.Println("please enter any of the following, y, yes, n, no.")
+		fmt.Println("enter any of the following, y, yes, n, no.")
 		return askForConfirmation(path)
 	}
 }
 
 func init() {
 	GetADCommand().AddCommand(downloadDetectorsCmd)
-	downloadDetectorsCmd.Flags().BoolP(deleteDetectorIDFlagName, "", false, "input is detector's id")
+	downloadDetectorsCmd.Flags().BoolP(deleteDetectorIDFlagName, "", false, "Input is detector ID")
 	cwd, err := os.Getwd()
 	if err != nil {
 		fmt.Println("failed to find current working directory due to ", err)
 	}
-	downloadDetectorsCmd.Flags().StringP(outputDirectoryFlagName, "o", cwd, "downloads detectors inside this folder path")
+	downloadDetectorsCmd.Flags().StringP(outputDirectoryFlagName, "o", cwd, "Downloads detectors inside this folder path")
+	downloadDetectorsCmd.Flags().StringP(flagProfileName, "p", "", "Use a specific profile from your configuration file.")
+	downloadDetectorsCmd.Flags().BoolP("help", "h", false, "Help for "+downloadDetectorsCommandName)
 }

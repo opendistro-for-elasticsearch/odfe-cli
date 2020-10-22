@@ -23,19 +23,19 @@ import (
 )
 
 const (
-	commandCreate = "create"
-	generate      = "generate-template"
+	createDetectorsCommandName = "create"
+	generate                   = "generate-template"
 )
 
 //createCmd creates detectors with configuration from input file, if interactive mode is on,
 //this command will prompt for confirmation on number of detectors will be created on executions.
 var createCmd = &cobra.Command{
-	Use:   commandCreate + " [detector-configuration-file-path ...] [flags]",
-	Short: "Create detectors with configuration from input file",
+	Use:   createDetectorsCommandName + " json-file-path ...",
+	Short: "Create detectors based on JSON files",
 	Long: fmt.Sprintf("Description:\n  " +
-		"Create detectors with configuration from input file path" +
-  "To begin, use --generate-template flag to generate sample configuration, save this template locally and update based on your use case. "+
-  "Use `odfe-cli ad create file-path` to create detector."),
+		"Create detectors based on a local JSON file" +
+		"To begin, use `odfe-cli ad create --generate-template` to generate sample configuration. Save this template locally and update it for your use case." +
+		"Then use `odfe-cli ad create file-path` to create detector."),
 	Run: func(cmd *cobra.Command, args []string) {
 		generate, _ := cmd.Flags().GetBool(generate)
 		if generate {
@@ -48,7 +48,7 @@ var createCmd = &cobra.Command{
 			return
 		}
 		err := createDetectors(args)
-		DisplayError(err, commandCreate)
+		DisplayError(err, createDetectorsCommandName)
 	},
 }
 
@@ -60,7 +60,9 @@ func generateTemplate() {
 
 func init() {
 	GetADCommand().AddCommand(createCmd)
-	createCmd.Flags().BoolP(generate, "g", false, "output sample detector configuration")
+	createCmd.Flags().StringP(flagProfileName, "p", "", "Use a specific profile from your configuration file.")
+	createCmd.Flags().BoolP(generate, "g", false, "Output sample detector configuration")
+	createCmd.Flags().BoolP("help", "h", false, "Help for "+createDetectorsCommandName)
 
 }
 

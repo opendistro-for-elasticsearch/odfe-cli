@@ -51,11 +51,11 @@ func GetProfileController() (profile.Controller, error) {
 //profileCommand is main command for profile operations like list, create and delete
 var profileCommand = &cobra.Command{
 	Use:   ProfileCommandName + " sub-command",
-	Short: "Manage collection of settings and credentials that you can apply to an odfe-cli command",
+	Short: "Manage a collection of settings and credentials that you can apply to an odfe-cli command",
 	Long: fmt.Sprintf("Description:\n  " +
-		"A named profile is a collection of settings and credentials that you can apply to an odfe-cli command. "+
-  "When you specify a profile for a command (eg: `odfe-cli <command> --profile <profile_name>` ), its settings and credentials are used to run that command. "+
-  "To configure a default profile for commands, either specify the default profile name in an environment variable (ODFE_PROFILE) or create a profile named `default`."),
+		"A named profile is a collection of settings and credentials that you can apply to an odfe-cli command. " +
+		"When you specify a profile for a command (eg: `odfe-cli <command> --profile <profile_name>` ), its settings and credentials are used to run that command. " +
+		"To configure a default profile for commands, either specify the default profile name in an environment variable (ODFE_PROFILE) or create a profile named `default`."),
 }
 
 //createProfileCmd creates profile interactively by prompting for name (distinct), user, endpoint, password.
@@ -124,7 +124,11 @@ func init() {
 	profileCommand.AddCommand(createProfileCmd)
 	profileCommand.AddCommand(deleteProfilesCmd)
 	profileCommand.AddCommand(listProfileCmd)
-	listProfileCmd.Flags().BoolP(FlagProfileVerbose, "l", false, "shows information like name, endpoint, user")
+	listProfileCmd.Flags().BoolP(FlagProfileVerbose, "l", false, "Shows information like name, endpoint, user")
+	listProfileCmd.Flags().BoolP("help", "h", false, "Help for "+ListProfilesCommandName)
+	createProfileCmd.Flags().BoolP("help", "h", false, "Help for "+CreateNewProfileCommandName)
+	deleteProfilesCmd.Flags().BoolP("help", "h", false, "Help for "+DeleteProfilesCommandName)
+	profileCommand.Flags().BoolP("help", "h", false, "Help for "+ProfileCommandName)
 	GetRoot().AddCommand(profileCommand)
 }
 

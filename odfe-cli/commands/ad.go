@@ -36,14 +36,14 @@ const (
 //adCommand is base command for Anomaly Detection plugin.
 var adCommand = &cobra.Command{
 	Use:   adCommandName,
-	Short: "Manage your Anomaly Detection plugin",
+	Short: "Manage the Anomaly Detection plugin",
 	Long: fmt.Sprintf("Description:\n  " +
-		`Use the Anomaly Detectors commands to create, configure and manage Anomaly Detections.
-  These commands enables you to leverage Machine Learning based algorithms to automatically detect anomalies as your data is ingested.`),
+		`Use the Anomaly Detection commands to create, configure, and manage detectors.`),
 }
 
 func init() {
-	adCommand.PersistentFlags().StringP(flagProfileName, "p", "", "Use a specific profile from your config file.")
+	adCommand.Flags().StringP(flagProfileName, "p", "", "Use a specific profile from your configuration file.")
+	adCommand.Flags().BoolP("help", "h", false, "Help for Anomaly Detection")
 	GetRoot().AddCommand(adCommand)
 }
 

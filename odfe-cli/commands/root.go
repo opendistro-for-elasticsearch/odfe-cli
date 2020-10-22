@@ -34,9 +34,10 @@ const (
 )
 
 var rootCommand = &cobra.Command{
-	Use:     RootCommandName,
-	Short:   "odfe-cli is an unified command line interface to manage odfe clusters",
-	Version: version,
+	Use:                RootCommandName,
+	Short:              "odfe-cli is an unified command line interface for managing ODFE clusters.",
+	Version:            version,
+	DisableSuggestions: false,
 }
 
 func GetRoot() *cobra.Command {
@@ -70,7 +71,9 @@ func getDefaultConfigFolderRootPath() string {
 func init() {
 	cobra.OnInitialize()
 	configFilePath := GetDefaultConfigFilePath()
-	rootCommand.PersistentFlags().StringP(flagConfig, "c", "", fmt.Sprintf("Configuration file default is %s", configFilePath))
+	rootCommand.PersistentFlags().StringP(flagConfig, "c", "", fmt.Sprintf("Configuration file for odfe-cli, default is %s", configFilePath))
+	rootCommand.Flags().BoolP("version", "v", false, "Version for odfe-cli")
+	rootCommand.Flags().BoolP("help", "h", false, "Help for odfe-cli")
 }
 
 // GetConfigFilePath gets config file path for execution
@@ -121,7 +124,7 @@ func isExists(path string) bool {
 // DisplayError prints command name and error on console and exists as well.
 func DisplayError(err error, cmdName string) {
 	if err != nil {
-		fmt.Println(cmdName, "command failed")
+		fmt.Println(cmdName, "command failed.")
 		fmt.Println("Reason:", err)
 	}
 }
