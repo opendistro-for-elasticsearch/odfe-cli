@@ -83,9 +83,9 @@ odfe-cli follows the following organization structure:
       main.go
 ```
 
-### Integrate new plugins with odfe-cli
+## Integrate new plugins with odfe-cli
 To integrate new plugins, you need to create a plugin base command file (odfe-cli/commands/ad.go). You will optionally provide additional commands as you see fit.
-#### Create plugin base command
+### Create plugin base command
 
 ```
 //adCommand is base command for Anomaly Detection plugin.
@@ -108,11 +108,11 @@ func init() {
 
 In above example, we created a base command 'ad' and added it to root command.
 
-#### Create additional commands
+### Create additional commands
 
 Additional commands can be defined and added in their own file inside commands/ directory.
 
-If you wanted to implement a start detector command from Anomaly Detection, you would create odfe-cli/commands/ad_start.go
+If you wanted to implement a create detector command from Anomaly Detection, you would create odfe-cli/commands/ad_create.go
 and include the following code snippet.
 
 ```
@@ -127,14 +127,14 @@ var createDetectorsCmd = &cobra.Command{
 	},
 }
 func init() {
-	startDetectorsCmd.Flags().StringP(flagProfileName, "p", "", "Use a specific profile from your configuration file.")
-	startDetectorsCmd.Flags().BoolP("help", "h", false, "Help for "+startDetectorsCommandName)
-	GetADCommand().AddCommand(startDetectorsCmd)
+	createDetectorsCmd.Flags().StringP(flagProfileName, "p", "", "Use a specific profile from your configuration file.")
+	createDetectorsCmd.Flags().BoolP("help", "h", false, "Help for "+createDetectorsCommandName)
+	GetADCommand().AddCommand(createDetectorsCmd)
 }
 ```
-#### Define Entity
+### Define Entity
 
-Input and output for plugin's REST API is represented as entity (structure). For example, create deetector REST API, needs
+Input and output for plugin's REST API is represented as entity (structure). For example, create detector REST API, needs
 following json as input.
 
 ```
@@ -208,7 +208,7 @@ type CreateDetector struct {
 }
 
 ```
-#### Call Plugin REST API
+### Call Plugin REST API
 
 Plugin's REST API can be abstracted as interface methods inside gateway. These methods will accept parameters if its
 corresponding REST API expects payload, and returns output. 
@@ -238,17 +238,17 @@ func (g *gateway) CreateDetector(ctx context.Context, payload interface{}) ([]by
 }
 ```
 
-#### Use Controller for business logic
+### Use Controller for business logic
 Controller will act as connector between the handler and gateway. Every plugin will have a controller to
 implement methods for every commands like below, for anomaly detection plugin.
 
 Controller is the best place
-to validate user input, transform user input for gateway, map gateway response to user understandable format.
+to validate user input, transform user input for the gateway, map gateway response to user understandable format.
 
 ```
 //Controller is an interface for the AD plugin controllers
 type Controller interface {
-	StartDetector(context.Context, string) error
+	CreateAnomalyDetector(context.Context, string) error
 }
 
 type controller struct {
@@ -284,11 +284,11 @@ func (c controller) CreateAnomalyDetector(ctx context.Context, r entity.CreateDe
 
 ```
 
-####  Use handler to bridge user commands and controller
+###  Use handler to bridge user commands and controller
 
 Create a handler to call controller method accordingly. Most of the time, user's input and controller's method
-will not be similar. For ex: to create a detector, user will pass JSON file but controller accepts an entity, this is created
-to keep controller logic agnostic to user file input. Hence, if ad supports YAML file in future, controller
+will not be similar. For example: to create a detector, user will pass JSON file but controller accepts an entity, this is created
+to keep controller logic agnostic to user file input. Hence, if ad supports YAML file in the future, controller
 will not be updated.
 
 ```
@@ -333,7 +333,7 @@ func (h *Handler) CreateAnomalyDetector(fileName string) error {
 }
 
 ```
-#### Update command to call handler method
+### Update command to call handler method
 
 Finally, connect the handler to command's Run method to execute action from start to end.
 
