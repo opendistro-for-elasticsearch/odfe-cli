@@ -9,7 +9,7 @@ a script for easy access or automation. This example moves a detector "ecommerce
 to prod cluster, provided both profiles are available in config file.
 
 ```
-odfe-cli ad download ecommerce-count-qualtity --profile stg
+odfe-cli ad get ecommerce-count-qualtity --profile stg > ecommerce-count-qualtity.json
 odfe-cli ad create ecommerce-count-qualtity.json --profile prod
 odfe-cli ad start ecommerce-count-qualtity.json --profile prod
 odfe-cli ad stop ecommerce-count-qualtity --profile stg
