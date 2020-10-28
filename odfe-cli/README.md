@@ -25,22 +25,21 @@ or from the [releases](https://github.com/opendistro-for-elasticsearch/es-cli/re
 
 ### Minimum requirements
 
-odfe-cli shares the same [minimum requirements](https://github.com/golang/go/wiki/MinimumRequirements#minimum-requirements)
-  as Go
+odfe-cli shares the same [minimum requirements](https://github.com/golang/go/wiki/MinimumRequirements#minimum-requirements) as Go.
 
 ### Build from source
 1. Install [Go](https://golang.org/doc/install) > = 1.14
-2. Clone the repository
+2. Clone the repository:
     ```
     cd $GOPATH/src
     git clone git@github.com:opendistro-for-elasticsearch/es-cli.git
     ```
-3. Run build from source directory to generate binary
+3. Run build from source directory to generate binary:
    ```
    cd es-cli/odfe-cli
    go build .
    ```
-4. Make binary executable
+4. Make binary executable:
     ```
     chmod +x ./odfe-cli
     ```
