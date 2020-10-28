@@ -124,7 +124,7 @@ func isExists(path string) bool {
 // DisplayError prints command name and error on console and exists as well.
 func DisplayError(err error, cmdName string) {
 	if err != nil {
-		fmt.Println(cmdName, "command failed.")
+		fmt.Println(cmdName, "Command failed.")
 		fmt.Println("Reason:", err)
 	}
 }

@@ -33,9 +33,8 @@ const (
 var startDetectorsCmd = &cobra.Command{
 	Use:   startDetectorsCommandName + " detector_name ..." + " [flags] ",
 	Short: "Start detectors based on a list of IDs, names, or name regex patterns",
-	Long: fmt.Sprintf("Description:\n  " +
-		"Start detectors based on list of user input. Wrap regex patterns in quotation marks to prevent the terminal from matching the patterns against the files in the current directory. " +
-		"The default input is detector name, use --id flag if input is detector ID instead of name"),
+	Long: fmt.Sprintf("Start detectors based on a list of IDs, names, or name regex patterns.\n" +
+    "Wrap regex patterns in quotation marks to prevent the terminal from matching patterns against the files in the current directory.\nThe default input is detector name. Use the `--id` flag if input is detector ID instead of name"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			fmt.Println(cmd.Usage())
@@ -77,11 +76,11 @@ var stopDetectorsCmd = &cobra.Command{
 
 func init() {
 	startDetectorsCmd.Flags().BoolP(idFlagName, "", false, "Input is detector ID")
-	startDetectorsCmd.Flags().StringP(flagProfileName, "p", "", "Use a specific profile from your configuration file.")
+	startDetectorsCmd.Flags().StringP(flagProfileName, "p", "", "Use a specific profile from your configuration file")
 	startDetectorsCmd.Flags().BoolP("help", "h", false, "Help for "+startDetectorsCommandName)
 	GetADCommand().AddCommand(startDetectorsCmd)
 	stopDetectorsCmd.Flags().BoolP(idFlagName, "", false, "Input is detector ID")
-	stopDetectorsCmd.Flags().StringP(flagProfileName, "p", "", "Use a specific profile from your configuration file.")
+	stopDetectorsCmd.Flags().StringP(flagProfileName, "p", "", "Use a specific profile from your configuration file")
 	stopDetectorsCmd.Flags().BoolP("help", "h", false, "Help for "+stopDetectorsCommandName)
 	GetADCommand().AddCommand(stopDetectorsCmd)
 }
