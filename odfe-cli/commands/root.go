@@ -34,10 +34,9 @@ const (
 )
 
 var rootCommand = &cobra.Command{
-	Use:                RootCommandName,
-	Short:              "odfe-cli is an unified command line interface for managing ODFE clusters.",
-	Version:            version,
-	DisableSuggestions: false,
+	Use:     RootCommandName,
+	Short:   "odfe-cli is a unified command line interface for managing ODFE clusters",
+	Version: version,
 }
 
 func GetRoot() *cobra.Command {

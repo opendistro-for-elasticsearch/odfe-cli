@@ -37,7 +37,7 @@ const (
 var adCommand = &cobra.Command{
 	Use:   adCommandName,
 	Short: "Manage the Anomaly Detection plugin",
-	Long: fmt.Sprintf("Use the Anomaly Detection commands to create, configure, and manage detectors."),
+	Long:  "Use the Anomaly Detection commands to create, configure, and manage detectors.",
 }
 
 func init() {

@@ -32,8 +32,9 @@ const (
 var updateDetectorsCmd = &cobra.Command{
 	Use:   updateDetectorsCommandName + " json-file-path ... [flags]",
 	Short: "Update detectors based on JSON files",
-	Long: fmt.Sprintf("Update detectors based on JSON files.\n" +
-    "To begin, use `odfe-cli ad get detector-name > detector_to_be_updated.json` to download the detector. Modify the file, and then use `odfe-cli ad update file-path` to update the detector."),
+	Long: "Update detectors based on JSON files.\n" +
+		"To begin, use `odfe-cli ad get detector-name > detector_to_be_updated.json` to download the detector. " +
+		"Modify the file, and then use `odfe-cli ad update file-path` to update the detector.",
 	Run: func(cmd *cobra.Command, args []string) {
 		//If no args, display usage
 		if len(args) < 1 {

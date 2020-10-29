@@ -33,8 +33,8 @@ const (
 var deleteDetectorsCmd = &cobra.Command{
 	Use:   deleteDetectorsCommandName + " detector_name ..." + " [flags] ",
 	Short: "Delete detectors based on a list of IDs, names, or name regex patterns",
-	Long: fmt.Sprintf("Delete detectors based on list of IDs, names, or name regex patterns.\n" +
-    "Wrap regex patterns in quotation marks to prevent the terminal from matching patterns against the files in the current directory.\nThe default input is detector name. Use the `--id` flag if input is detector ID instead of name"),
+	Long: "Delete detectors based on list of IDs, names, or name regex patterns.\n" +
+		"Wrap regex patterns in quotation marks to prevent the terminal from matching patterns against the files in the current directory.\nThe default input is detector name. Use the `--id` flag if input is detector ID instead of name",
 	Run: func(cmd *cobra.Command, args []string) {
 		//If no args, display usage
 		if len(args) < 1 {

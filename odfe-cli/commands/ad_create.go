@@ -32,8 +32,8 @@ const (
 var createCmd = &cobra.Command{
 	Use:   createDetectorsCommandName + " json-file-path ...",
 	Short: "Create detectors based on JSON files",
-	Long: fmt.Sprintf("Create detectors based on a local JSON file\n" +
-		"To begin, use `odfe-cli ad create --generate-template` to generate a sample configuration. Save this template locally and update it for your use case. Then use `odfe-cli ad create file-path` to create detector."),
+	Long: "Create detectors based on a local JSON file\n" +
+		"To begin, use `odfe-cli ad create --generate-template` to generate a sample configuration. Save this template locally and update it for your use case. Then use `odfe-cli ad create file-path` to create detector.",
 	Run: func(cmd *cobra.Command, args []string) {
 		generate, _ := cmd.Flags().GetBool(generate)
 		if generate {
