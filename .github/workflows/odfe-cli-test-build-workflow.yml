@@ -49,7 +49,7 @@ jobs:
           version: v1.28
           working-directory: odfe-cli
 
-      - name: Run Test
+      - name: Run Unit Test
         env:
           GOPROXY: "https://proxy.golang.org"
         run: |
