@@ -61,11 +61,12 @@ func (a *ODFECLISuite) DeleteEcommerceIndex() {
 
 //CreateEcommerceIndex creates test data for plugin processing
 func (a *ODFECLISuite) CreateEcommerceIndex() {
-	_, err := a.callRequest(http.MethodPut, HelperLoadBytes("ecommerce.json"), fmt.Sprintf("%s/%s/_doc/1", a.Profile.Endpoint, EcommerceIndexName))
+	res, err := a.callRequest(http.MethodPut, HelperLoadBytes("ecommerce.json"), fmt.Sprintf("%s/%s/_doc/1?refresh", a.Profile.Endpoint, EcommerceIndexName))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	fmt.Println(string(res))
 }
 
 func (a *ODFECLISuite) callRequest(method string, reqBytes []byte, url string) ([]byte, error) {

@@ -3,7 +3,7 @@ INTEGRATION_TEST_PATH=./it
 
 # this command will start a docker components that we set in docker-compose.yml
 docker.start.components:
-	docker-compose up;
+	docker-compose up -d;
 
 # shutting down docker components
 docker.stop:
