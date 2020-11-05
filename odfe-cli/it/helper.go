@@ -57,6 +57,19 @@ func (a *ODFECLISuite) DeleteIndex(indexName string) {
 	}
 }
 
+func (a *ODFECLISuite) ValidateProfile() error {
+	if a.Profile.Endpoint == "" {
+		return fmt.Errorf("odfe endpoint cannot be empty. set env ODFE_ENDPOINT")
+	}
+	if a.Profile.UserName == "" {
+		return fmt.Errorf("odfe user name cannot be empty. set env ODFE_USER")
+	}
+	if a.Profile.Password == "" {
+		return fmt.Errorf("odfe endpoint cannot be empty. set env ODFE_PASSWORD")
+	}
+	return nil
+}
+
 //CreateIndex creates test data for plugin processing
 func (a *ODFECLISuite) CreateIndex(indexName string) {
 	res, err := a.callRequest(http.MethodPut, HelperLoadBytes("ecommerce.json"), fmt.Sprintf("%s/%s/_doc/1?refresh", a.Profile.Endpoint, indexName))

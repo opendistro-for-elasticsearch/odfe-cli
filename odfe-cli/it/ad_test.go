@@ -70,9 +70,13 @@ func (a *ADTestSuite) SetupSuite() {
 	}
 	a.Profile = &entity.Profile{
 		Name:     "test",
-		Endpoint: "https://localhost:9200",
-		UserName: "admin",
-		Password: "admin",
+		Endpoint: os.Getenv("ODFE_ENDPOINT"),
+		UserName: os.Getenv("ODFE_USER"),
+		Password: os.Getenv("ODFE_PASSWORD"),
+	}
+	if err = a.ValidateProfile(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 	a.CreateIndex(EcommerceIndexName)
 	g := esg.New(a.Client, a.Profile)

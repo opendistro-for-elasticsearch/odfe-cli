@@ -3,7 +3,7 @@
 version: '3'
 services:
   odfe-test-node1:
-    image: amazon/opendistro-for-elasticsearch:${ODFE_VERSION:-1.11.0} #default is 1.11.0, will be used if it is not set
+    image: amazon/opendistro-for-elasticsearch:${ODFE_VERSION:-latest}
     container_name: odfe-test-node1
     environment:
       - cluster.name=odfe-test-cluster

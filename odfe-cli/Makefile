@@ -1,6 +1,12 @@
 # we will put our integration testing in this path
 INTEGRATION_TEST_PATH=./it
 
+# set of env variables that you need for testing
+ENV_LOCAL_TEST=\
+  ODFE_ENDPOINT="https://localhost:9200" \
+  ODFE_USER="admin" \
+  ODFE_PASSWORD="admin"
+
 # this command will start a docker components that we set in docker-compose.yml
 docker.start.components:
 	docker-compose up -d;
@@ -14,11 +20,10 @@ docker.clean:
 	docker system prune --volumes;
 
 # this command will trigger integration test
-# INTEGRATION_TEST_SUITE_PATH is used for run specific test in Golang, if it's not specified
-# it will run all tests under ./it directory
+# INTEGRATION_TEST_SUITE_PATH is used for run specific test in Golang
 test.integration:
 	go clean -testcache;
-	go test -tags=integration $(INTEGRATION_TEST_PATH);
+	$(ENV_LOCAL_TEST) go test -tags=integration $(INTEGRATION_TEST_PATH);
 
 test.unit:
 	go clean -testcache;
