@@ -37,6 +37,8 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+const EcommerceIndexName = "integration-test-ecommerce"
+
 //ADTestSuite suite specific to AD plugin
 type ADTestSuite struct {
 	ODFECLISuite
@@ -48,13 +50,14 @@ type ADTestSuite struct {
 }
 
 func getRawFeatureAggregation() []byte {
-	return []byte(`{
-        			"sum_value": {
-          				"sum": {
-            				"field": "total_quantity"
-						}
-        			}
-      			}`)
+	return []byte(`
+	{
+		"sum_value": {
+			"sum": {
+				"field": "total_quantity"
+			}
+		}
+	}`)
 }
 
 //SetupSuite runs once for every test suite
@@ -71,7 +74,7 @@ func (a *ADTestSuite) SetupSuite() {
 		UserName: "admin",
 		Password: "admin",
 	}
-	a.CreateEcommerceIndex()
+	a.CreateIndex(EcommerceIndexName)
 	g := esg.New(a.Client, a.Profile)
 	a.ESController = es.New(g)
 	a.ADGateway = adgateway.New(a.Client, a.Profile)
@@ -104,7 +107,7 @@ func (a *ADTestSuite) SetupSuite() {
 }
 
 func (a *ADTestSuite) TearDownSuite() {
-	a.DeleteEcommerceIndex()
+	a.DeleteIndex(EcommerceIndexName)
 }
 
 // This will run right before the test starts
@@ -179,15 +182,16 @@ func (a *ADTestSuite) CreateDetectorUsingRESTAPI(t *testing.T) {
 }
 
 func getRawFilter() []byte {
-	return []byte(`{
-    			"bool": {
-      				"filter": {
-          				"term": {
-						    "currency": "EUR"
-         			 	}
-        			}
-    			}
-  			}`)
+	return []byte(`
+	{
+		"bool":{
+			"filter": {
+				"term": {
+					"currency": "EUR"
+				}
+			}
+		}
+	}`)
 }
 
 func getCreateDetectorRequest() adentity.CreateDetectorRequest {

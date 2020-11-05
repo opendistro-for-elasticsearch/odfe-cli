@@ -59,7 +59,7 @@ jobs:
       - name: Run Docker Image
         run: |
           make docker.start.components
-          sleep 90
+          sleep 60
 
       - name: Run Integration Tests
         env:

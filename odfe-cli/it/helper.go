@@ -30,8 +30,6 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-const EcommerceIndexName = "integration-test-ecommerce"
-
 type ODFECLISuite struct {
 	suite.Suite
 	Client  *client.Client
@@ -50,8 +48,8 @@ func HelperLoadBytes(name string) []byte {
 }
 
 // DeleteEcommerceIndex deletes test index created for integration tests
-func (a *ODFECLISuite) DeleteEcommerceIndex() {
-	_, err := a.callRequest(http.MethodPut, HelperLoadBytes("ecommerce.json"), fmt.Sprintf("%s/%s/_doc", a.Profile.Endpoint, EcommerceIndexName))
+func (a *ODFECLISuite) DeleteIndex(indexName string) {
+	_, err := a.callRequest(http.MethodPut, HelperLoadBytes("ecommerce.json"), fmt.Sprintf("%s/%s/_doc", a.Profile.Endpoint, indexName))
 
 	if err != nil {
 		fmt.Println(err)
@@ -59,9 +57,9 @@ func (a *ODFECLISuite) DeleteEcommerceIndex() {
 	}
 }
 
-//CreateEcommerceIndex creates test data for plugin processing
-func (a *ODFECLISuite) CreateEcommerceIndex() {
-	res, err := a.callRequest(http.MethodPut, HelperLoadBytes("ecommerce.json"), fmt.Sprintf("%s/%s/_doc/1?refresh", a.Profile.Endpoint, EcommerceIndexName))
+//CreateIndex creates test data for plugin processing
+func (a *ODFECLISuite) CreateIndex(indexName string) {
+	res, err := a.callRequest(http.MethodPut, HelperLoadBytes("ecommerce.json"), fmt.Sprintf("%s/%s/_doc/1?refresh", a.Profile.Endpoint, indexName))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
