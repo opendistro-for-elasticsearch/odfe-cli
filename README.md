@@ -61,8 +61,9 @@ go test -v -run TestName;
 ```
 
 ### Integration Testing
-In order to test cli end-to-end, we need to test controllers against running odfe clusters.
+In order to test odfe-cli end-to-end, we need a running odfe cluster. We can use Docker to accomplish this. If you have not installed docker, you can install it from [here](https://docs.docker.com/get-docker/).
 The [Docker Compose file](./docker-compose.yml) supports the ability to run integration tests for the project in local environments respectively.
+If you have not installed docker-compose, you can install it from this [link](https://docs.docker.com/compose/install/)
 
 Integration tests are often slower, so you may want to only run them after the unit test. In order to differentiate unit tests from integration tests, Go has a built-in mechanism for allowing you to logically separate your tests
 with build tags. The build tag needs to be placed as close to the top of the file as possible, and must have a blank line beneath it.   
