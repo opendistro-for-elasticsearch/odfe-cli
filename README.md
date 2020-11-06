@@ -28,7 +28,8 @@ or from the [releases](https://github.com/opendistro-for-elasticsearch/odfe-cli/
 
 ### Minimum requirements
 
-odfe-cli shares the same [minimum requirements](https://github.com/golang/go/wiki/MinimumRequirements#minimum-requirements) as Go.
+odfe-cli shares [minimum requirements](https://github.com/golang/go/wiki/MinimumRequirements#minimum-requirements) as Go
+and [docker](https://docs.docker.com/get-docker/) to run integration tests.
 
 ### Build from source
 1. Install [Go](https://golang.org/doc/install) > = 1.14
@@ -46,10 +47,9 @@ odfe-cli shares the same [minimum requirements](https://github.com/golang/go/wik
     ```
     chmod +x ./odfe-cli
     ```
-## Testing
 
 ### Unit Testing
-Go has a simple tool for running tests. To run every test:
+Go has a simple tool for running tests. To run every unit test, use this command:
  ```
 go test ./...
 ```
@@ -61,7 +61,7 @@ go test -v -run TestName;
 ```
 
 ### Integration Testing
-In order to test odfe-cli end-to-end, we need a running odfe cluster. We can use Docker to accomplish this. If you have not installed docker, you can install it from [here](https://docs.docker.com/get-docker/).
+In order to test odfe-cli end-to-end, we need a running odfe cluster. We can use Docker to accomplish this. 
 The [Docker Compose file](./docker-compose.yml) supports the ability to run integration tests for the project in local environments respectively.
 If you have not installed docker-compose, you can install it from this [link](https://docs.docker.com/compose/install/)
 
