@@ -32,13 +32,13 @@ jobs:
       - name: Upload macOS(amd64) Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: odfe-cli-${{ env.RELEASE_VERSION }}-macOS-amd64
+          name: odfe-cli-${{ env.RELEASE_VERSION }}-macOS-x64
           path: dist/odfe-cli_darwin_amd64/odfe-cli
 
       - name: Upload Linux(amd64) Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: odfe-cli-${{ env.RELEASE_VERSION }}-linux-amd64
+          name: odfe-cli-${{ env.RELEASE_VERSION }}-linux-x64
           path: dist/odfe-cli_linux_amd64/odfe-cli
 
       - name: Upload Linux(arm64) Artifact
@@ -50,11 +50,11 @@ jobs:
       - name: Upload Windows(i386) Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: odfe-cli-${{ env.RELEASE_VERSION }}-windows-386
+          name: odfe-cli-${{ env.RELEASE_VERSION }}-windows-x86
           path: dist/odfe-cli_windows_386/odfe-cli.exe
 
       - name: Upload Windows(amd64) Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: odfe-cli-${{ env.RELEASE_VERSION }}-windows-amd64
+          name: odfe-cli-${{ env.RELEASE_VERSION }}-windows-x64
           path: dist/odfe-cli_windows_amd64/odfe-cli.exe
