@@ -32,7 +32,7 @@ jobs:
       - name: Upload macOS(amd64) Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: odfe-cli-${{ env.RELEASE_VERSION }}-macOS-x64
+          name: odfe-cli-${{ env.RELEASE_VERSION }}-macos-x64
           path: dist/odfe-cli_darwin_amd64/odfe-cli
 
       - name: Upload Linux(amd64) Artifact
