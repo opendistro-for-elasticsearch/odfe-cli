@@ -63,7 +63,7 @@ func (a *KNNTestSuite) SetupSuite() {
 	a.Controller = ctrl.New(a.Gateway)
 }
 
-//StartDetectorUsingRESTAPI helper to start detector using rest api
+//GetNodesIDUsingRESTAPI helper to get node id using rest api
 func (a *KNNTestSuite) GetNodesIDUsingRESTAPI(t *testing.T) string {
 	indexURL := fmt.Sprintf("%s/_cat/nodes?full_id=true&h=id", a.Profile.Endpoint)
 	response, err := a.callRequest(http.MethodGet, []byte(""), indexURL)
