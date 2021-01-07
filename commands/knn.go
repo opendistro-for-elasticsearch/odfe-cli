@@ -42,7 +42,7 @@ var knnCommand = &cobra.Command{
 //knnStatsCommandName provide stats command for k-NN plugin.
 var knnStatsCommand = &cobra.Command{
 	Use:   knnStatsCommandName,
-	Short: "Manage the k-NN plugin short for k-nearest neighbors",
+	Short: "Manage the k-NN plugin ",
 	Long:  "Use the k-NN commands to know about the current status of the KNN Plugin.",
 	Run: func(cmd *cobra.Command, args []string) {
 		h, err := GetKNNHandler()
@@ -65,6 +65,14 @@ var knnStatsCommand = &cobra.Command{
 	},
 }
 
+func GetKNNCommand() *cobra.Command {
+	return knnCommand
+}
+
+func GetKNNStatsCommand() *cobra.Command {
+	return knnStatsCommand
+}
+
 func init() {
 	//knn base command
 	knnCommand.Flags().BoolP("help", "h", false, "Help for k-NN plugin")
@@ -77,11 +85,11 @@ func init() {
 }
 
 func getStatistics(h *handler.Handler, nodes string, names string) error {
-	detector, err := handler.GetStatistics(h, nodes, names)
+	stats, err := handler.GetStatistics(h, nodes, names)
 	if err != nil {
 		return nil
 	}
-	fmt.Println(string(detector))
+	fmt.Println(string(stats))
 	return nil
 }
 

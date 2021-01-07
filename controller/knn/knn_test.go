@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestController_GetDistinctValues(t *testing.T) {
+func TestControllerGetStatistics(t *testing.T) {
 	t.Run("gateway failed", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()

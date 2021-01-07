@@ -54,7 +54,8 @@ func (g *gateway) buildStatsURL(nodes string, names string) (*url.URL, error) {
 		return nil, err
 	}
 	path := statsURL
-	if nodes != "" {
+	// if either of filter parameters are non-empty, use filter template
+	if nodes != "" || names != "" {
 		path = fmt.Sprintf(nodeStatsURLTemplate, nodes, names)
 	}
 	endpoint.Path = path
@@ -109,11 +110,11 @@ func (g gateway) GetStatistics(ctx context.Context, nodes string, names string) 
 	if err != nil {
 		return nil, err
 	}
-	detectorRequest, err := g.BuildRequest(ctx, http.MethodGet, "", statsURL.String(), gw.GetHeaders())
+	request, err := g.BuildRequest(ctx, http.MethodGet, "", statsURL.String(), gw.GetHeaders())
 	if err != nil {
 		return nil, err
 	}
-	response, err := g.Call(detectorRequest, http.StatusOK)
+	response, err := g.Call(request, http.StatusOK)
 	if err != nil {
 		return nil, err
 	}

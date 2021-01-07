@@ -104,6 +104,54 @@ func (a *KNNTestSuite) TestGetStatistics() {
 			t.Fatal("knn_query_requests is not found")
 		}
 	})
+	a.T().Run("test filtered nodes", func(t *testing.T) {
+		ctx := context.Background()
+		nodeID := a.GetNodesIDUsingRESTAPI(t)
+		response, err := a.Controller.GetStatistics(ctx, nodeID, "")
+		assert.NoError(t, err, "failed to get stats")
+		assert.NotNil(t, string(response))
+		var data map[string]interface{}
+		if err := json.Unmarshal(response, &data); err != nil {
+			t.Fatal(err)
+		}
+		assert.NotNil(t, data)
+		assert.NotNil(t, data["nodes"])
+		nodes := data["nodes"].(map[string]interface{})
+		if _, ok := nodes[nodeID]; !ok {
+			t.Fatal("Node id is not found")
+		}
+		stats := nodes[nodeID].(map[string]interface{})
+		if _, ok := stats["graph_index_errors"]; !ok {
+			t.Fatal("graph_index_errors is not found")
+		}
+		if _, ok := stats["knn_query_requests"]; !ok {
+			t.Fatal("knn_query_requests is not found")
+		}
+	})
+	a.T().Run("test filtered only stats", func(t *testing.T) {
+		ctx := context.Background()
+		response, err := a.Controller.GetStatistics(ctx, "", "graph_index_errors,knn_query_requests")
+		assert.NoError(t, err, "failed to get stats")
+		assert.NotNil(t, string(response))
+		var data map[string]interface{}
+		if err := json.Unmarshal(response, &data); err != nil {
+			t.Fatal(err)
+		}
+		assert.NotNil(t, data)
+		assert.NotNil(t, data["nodes"])
+		nodes := data["nodes"].(map[string]interface{})
+		nodeID := a.GetNodesIDUsingRESTAPI(t)
+		if _, ok := nodes[nodeID]; !ok {
+			t.Fatal("Node id is not found")
+		}
+		stats := nodes[nodeID].(map[string]interface{})
+		if _, ok := stats["graph_index_errors"]; !ok {
+			t.Fatal("graph_index_errors is not found")
+		}
+		if _, ok := stats["knn_query_requests"]; !ok {
+			t.Fatal("knn_query_requests is not found")
+		}
+	})
 }
 
 // In order for 'go test' to run this suite, we need to create

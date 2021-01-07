@@ -43,7 +43,7 @@ func getTestClient(t *testing.T, url string, code int) *client.Client {
 	})
 }
 
-func TestGateway_SearchDistinctValues(t *testing.T) {
+func TestGatewayGetStatistics(t *testing.T) {
 	ctx := context.Background()
 	t.Run("full stats succeeded", func(t *testing.T) {
 
@@ -57,7 +57,7 @@ func TestGateway_SearchDistinctValues(t *testing.T) {
 		assert.NoError(t, err)
 		assert.EqualValues(t, string(actual), "response")
 	})
-	t.Run("filtered stats succeeded", func(t *testing.T) {
+	t.Run("filtered node and stats succeeded", func(t *testing.T) {
 
 		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/node1,node2/stats/stat1", 200)
 		testGateway := New(testClient, &entity.Profile{
@@ -66,6 +66,30 @@ func TestGateway_SearchDistinctValues(t *testing.T) {
 			Password: "admin",
 		})
 		actual, err := testGateway.GetStatistics(ctx, "node1,node2", "stat1")
+		assert.NoError(t, err)
+		assert.EqualValues(t, string(actual), "response")
+	})
+	t.Run("filtered node succeeded", func(t *testing.T) {
+
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/node1,node2/stats/", 200)
+		testGateway := New(testClient, &entity.Profile{
+			Endpoint: "http://localhost:9200",
+			UserName: "admin",
+			Password: "admin",
+		})
+		actual, err := testGateway.GetStatistics(ctx, "node1,node2", "")
+		assert.NoError(t, err)
+		assert.EqualValues(t, string(actual), "response")
+	})
+	t.Run("filtered stats succeeded", func(t *testing.T) {
+
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn//stats/stat1,stat2", 200)
+		testGateway := New(testClient, &entity.Profile{
+			Endpoint: "http://localhost:9200",
+			UserName: "admin",
+			Password: "admin",
+		})
+		actual, err := testGateway.GetStatistics(ctx, "", "stat1,stat2")
 		assert.NoError(t, err)
 		assert.EqualValues(t, string(actual), "response")
 	})
@@ -79,5 +103,16 @@ func TestGateway_SearchDistinctValues(t *testing.T) {
 		})
 		_, err := testGateway.GetStatistics(ctx, "", "")
 		assert.EqualError(t, err, "user name and password cannot be empty")
+	})
+	t.Run("gateway failed due to gateway user config", func(t *testing.T) {
+
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/stats", 400)
+		testGateway := New(testClient, &entity.Profile{
+			Endpoint: "http://localhost:9200",
+			UserName: "admin",
+			Password: "admin",
+		})
+		_, err := testGateway.GetStatistics(ctx, "", "")
+		assert.Error(t, err)
 	})
 }
