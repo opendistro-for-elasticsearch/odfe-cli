@@ -19,6 +19,7 @@ import (
 	"context"
 	"encoding/json"
 	"odfe-cli/controller/knn"
+	entity "odfe-cli/entity/knn"
 )
 
 //Handler is facade for controller
@@ -51,4 +52,15 @@ func (h *Handler) GetStatistics(nodes string, names string) ([]byte, error) {
 		return nil, err
 	}
 	return json.MarshalIndent(data, "", "  ")
+}
+
+//WarmupIndices warmups knn index
+func WarmupIndices(h *Handler, index []string) (*entity.Shards, error) {
+	return h.WarmupIndices(index)
+}
+
+//WarmupIndices warmups shard based on knn index and returns status of shards
+func (h *Handler) WarmupIndices(index []string) (*entity.Shards, error) {
+	ctx := context.Background()
+	return h.Controller.WarmupIndices(ctx, index)
 }
