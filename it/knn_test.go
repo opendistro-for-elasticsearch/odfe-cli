@@ -34,6 +34,11 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+const (
+	KNNSampleIndexFileName        = "knn-sample-index"
+	KnnSampleIndexMappingFileName = "knn-sample-index-mapping"
+)
+
 //KNNTestSuite suite specific to k-NN plugin
 type KNNTestSuite struct {
 	ODFECLISuite
@@ -61,6 +66,10 @@ func (a *KNNTestSuite) SetupSuite() {
 	}
 	a.Gateway = gateway.New(a.Client, a.Profile)
 	a.Controller = ctrl.New(a.Gateway)
+	a.CreateIndex(KNNSampleIndexFileName, KnnSampleIndexMappingFileName)
+}
+func (a *KNNTestSuite) TearDownSuite() {
+	a.DeleteIndex(KNNSampleIndexFileName)
 }
 
 //GetNodesIDUsingRESTAPI helper to get node id using rest api
@@ -151,6 +160,17 @@ func (a *KNNTestSuite) TestGetStatistics() {
 		if _, ok := stats["knn_query_requests"]; !ok {
 			t.Fatal("knn_query_requests is not found")
 		}
+	})
+}
+
+func (a *KNNTestSuite) TestWarmupIndices() {
+	a.T().Run("test warmup success", func(t *testing.T) {
+		ctx := context.Background()
+		response, err := a.Controller.WarmupIndices(ctx, []string{KNNSampleIndexFileName})
+		assert.NoError(t, err, "failed to load graph into memory")
+		assert.NotNil(t, response)
+		assert.True(t, response.Total > 0)
+		assert.EqualValues(t, response.Total, response.Successful)
 	})
 }
 
