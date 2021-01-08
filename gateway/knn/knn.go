@@ -26,9 +26,10 @@ import (
 )
 
 const (
-	baseURL              = "_opendistro/_knn"
-	statsURL             = baseURL + "/stats"
-	nodeStatsURLTemplate = baseURL + "/%s/stats/%s"
+	baseURL                  = "_opendistro/_knn"
+	statsURL                 = baseURL + "/stats"
+	nodeStatsURLTemplate     = baseURL + "/%s/stats/%s"
+	warmupIndicesURLTemplate = baseURL + "/warmup/%s"
 )
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen  -destination=mocks/mock_knn.go -package=mocks . Gateway
@@ -36,6 +37,7 @@ const (
 // Gateway interface to k-NN Plugin
 type Gateway interface {
 	GetStatistics(ctx context.Context, nodes string, names string) ([]byte, error)
+	WarmupIndices(ctx context.Context, indices string) ([]byte, error)
 }
 
 type gateway struct {
@@ -59,6 +61,16 @@ func (g *gateway) buildStatsURL(nodes string, names string) (*url.URL, error) {
 		path = fmt.Sprintf(nodeStatsURLTemplate, nodes, names)
 	}
 	endpoint.Path = path
+	return endpoint, nil
+}
+
+//buildWarmupURL to construct url for warming up indices
+func (g *gateway) buildWarmupURL(indices string) (*url.URL, error) {
+	endpoint, err := gw.GetValidEndpoint(g.Profile)
+	if err != nil {
+		return nil, err
+	}
+	endpoint.Path = fmt.Sprintf(warmupIndicesURLTemplate, indices)
 	return endpoint, nil
 }
 
@@ -111,6 +123,32 @@ func (g gateway) GetStatistics(ctx context.Context, nodes string, names string) 
 		return nil, err
 	}
 	request, err := g.BuildRequest(ctx, http.MethodGet, "", statsURL.String(), gw.GetHeaders())
+	if err != nil {
+		return nil, err
+	}
+	response, err := g.Call(request, http.StatusOK)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+/* WarmupIndices will perform warmup on given indices
+GET /_opendistro/_knn/warmup/index1,index2,index3?pretty
+{
+	"_shards" : {
+		"total" : 6,
+		"successful" : 6,
+		"failed" : 0
+	}
+}
+*/
+func (g gateway) WarmupIndices(ctx context.Context, indices string) ([]byte, error) {
+	warmupURL, err := g.buildWarmupURL(indices)
+	if err != nil {
+		return nil, err
+	}
+	request, err := g.BuildRequest(ctx, http.MethodGet, "", warmupURL.String(), gw.GetHeaders())
 	if err != nil {
 		return nil, err
 	}

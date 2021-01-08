@@ -116,3 +116,41 @@ func TestGatewayGetStatistics(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
+
+func TestGatewayWarmupIndices(t *testing.T) {
+	ctx := context.Background()
+	t.Run("warmup indices", func(t *testing.T) {
+
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1,index2", 200)
+		testGateway := New(testClient, &entity.Profile{
+			Endpoint: "http://localhost:9200",
+			UserName: "admin",
+			Password: "admin",
+		})
+		actual, err := testGateway.WarmupIndices(ctx, "index1,index2")
+		assert.NoError(t, err)
+		assert.EqualValues(t, string(actual), "response")
+	})
+	t.Run("failed due to bad user config", func(t *testing.T) {
+
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1", 400)
+		testGateway := New(testClient, &entity.Profile{
+			Endpoint: "http://localhost:9200",
+			UserName: "",
+			Password: "admin",
+		})
+		_, err := testGateway.WarmupIndices(ctx, "index1")
+		assert.EqualError(t, err, "user name and password cannot be empty")
+	})
+	t.Run("failed due to gateway error", func(t *testing.T) {
+
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1", 400)
+		testGateway := New(testClient, &entity.Profile{
+			Endpoint: "http://localhost:9200",
+			UserName: "admin",
+			Password: "admin",
+		})
+		_, err := testGateway.WarmupIndices(ctx, "index1")
+		assert.Error(t, err)
+	})
+}
