@@ -17,7 +17,10 @@ package knn
 
 import (
 	"context"
+	"encoding/json"
+	entity "odfe-cli/entity/knn"
 	"odfe-cli/gateway/knn"
+	"strings"
 )
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen  -destination=mocks/mock_knn.go -package=mocks . Controller
@@ -25,6 +28,7 @@ import (
 //Controller is an interface for the AD plugin controllers
 type Controller interface {
 	GetStatistics(context.Context, string, string) ([]byte, error)
+	WarmupIndices(context.Context, []string) (*entity.Shards, error)
 }
 
 type controller struct {
@@ -41,4 +45,20 @@ func New(gateway knn.Gateway) Controller {
 	return &controller{
 		gateway,
 	}
+}
+
+//WarmupIndices will load all the graphs for all of the shards (primaries and replicas)
+//of all the indices specified in the request into native memory
+func (c controller) WarmupIndices(ctx context.Context, index []string) (*entity.Shards, error) {
+	indices := strings.Join(index, ",")
+	response, err := c.gateway.WarmupIndices(ctx, indices)
+	if err != nil {
+		return nil, err
+	}
+	var warmupAPI entity.WarmupAPIResponse
+	err = json.Unmarshal(response, &warmupAPI)
+	if err != nil {
+		return nil, err
+	}
+	return &warmupAPI.Shards, nil
 }

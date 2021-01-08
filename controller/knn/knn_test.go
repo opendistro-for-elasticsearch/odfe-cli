@@ -17,7 +17,9 @@ package knn
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"odfe-cli/entity/knn"
 	"odfe-cli/gateway/knn/mocks"
 	"testing"
 
@@ -47,5 +49,39 @@ func TestControllerGetStatistics(t *testing.T) {
 		result, err := ctrl.GetStatistics(ctx, "node1", "stats")
 		assert.NoError(t, err)
 		assert.EqualValues(t, []byte(`response succeeded`), result)
+	})
+}
+
+func TestControllerWarmupIndices(t *testing.T) {
+	t.Run("gateway failed", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockGateway := mocks.NewMockGateway(mockCtrl)
+		ctx := context.Background()
+		mockGateway.EXPECT().WarmupIndices(ctx, "index1").Return(nil, errors.New("gateway failed"))
+		ctrl := New(mockGateway)
+		_, err := ctrl.WarmupIndices(ctx, []string{"index1"})
+		assert.Error(t, err)
+	})
+	t.Run("warmup success", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+		mockGateway := mocks.NewMockGateway(mockCtrl)
+		ctx := context.Background()
+		expectedResponse := knn.WarmupAPIResponse{
+			Shards: knn.Shards{
+				Total:      10,
+				Successful: 8,
+				Failed:     2,
+			},
+		}
+		rawMessage, err := json.Marshal(expectedResponse)
+		assert.NoError(t, err)
+		mockGateway.EXPECT().WarmupIndices(ctx, "index1").Return(rawMessage, nil)
+		ctrl := New(mockGateway)
+		result, err := ctrl.WarmupIndices(ctx, []string{"index1"})
+		assert.NoError(t, err)
+		assert.EqualValues(t, expectedResponse.Shards, *result)
 	})
 }

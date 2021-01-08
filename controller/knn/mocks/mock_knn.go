@@ -6,6 +6,7 @@ package mocks
 
 import (
 	context "context"
+	knn "odfe-cli/entity/knn"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -47,4 +48,19 @@ func (m *MockController) GetStatistics(arg0 context.Context, arg1, arg2 string) 
 func (mr *MockControllerMockRecorder) GetStatistics(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStatistics", reflect.TypeOf((*MockController)(nil).GetStatistics), arg0, arg1, arg2)
+}
+
+// WarmupIndices mocks base method
+func (m *MockController) WarmupIndices(arg0 context.Context, arg1 []string) (*knn.Shards, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WarmupIndices", arg0, arg1)
+	ret0, _ := ret[0].(*knn.Shards)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WarmupIndices indicates an expected call of WarmupIndices
+func (mr *MockControllerMockRecorder) WarmupIndices(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WarmupIndices", reflect.TypeOf((*MockController)(nil).WarmupIndices), arg0, arg1)
 }
