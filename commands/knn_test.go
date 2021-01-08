@@ -56,3 +56,26 @@ func TestGetStatistics(t *testing.T) {
 		assert.EqualValues(t, "node1,node2", nodeNames)
 	})
 }
+
+func TestWarmupIndices(t *testing.T) {
+	t.Run("test warmup command failed", func(t *testing.T) {
+		rootCmd := GetRoot()
+		knnCommand := GetKNNCommand()
+		knnWarmupCmd := GetKNNWarmupCommand()
+		knnCommand.AddCommand(knnWarmupCmd)
+		rootCmd.AddCommand(knnCommand)
+		result, err := executeCommand(rootCmd, knnCommandName, knnWarmupCommandName)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, result, "command failed")
+	})
+	t.Run("test warmup command", func(t *testing.T) {
+		rootCmd := GetRoot()
+		knnCommand := GetKNNCommand()
+		knnWarmupCmd := GetKNNWarmupCommand()
+		knnCommand.AddCommand(knnWarmupCmd)
+		rootCmd.AddCommand(knnCommand)
+		result, err := executeCommand(rootCmd, knnCommandName, knnWarmupCommandName, "index1", "index2")
+		assert.NoError(t, err)
+		assert.Empty(t, result)
+	})
+}

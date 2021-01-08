@@ -28,6 +28,7 @@ import (
 const (
 	knnCommandName        = "knn"
 	knnStatsCommandName   = "stats"
+	knnWarmupCommandName  = "warmup"
 	knnStatsNodesFlagName = "nodes"
 	knnStatsNamesFlagName = "stat-names"
 )
@@ -36,14 +37,14 @@ const (
 var knnCommand = &cobra.Command{
 	Use:   knnCommandName,
 	Short: "Manage the k-NN plugin short for k-nearest neighbors",
-	Long:  "Use the k-NN commands to know about the current status of the KNN Plugin.",
+	Long:  "Use the k-NN commands to perform operations like stats, warmup.",
 }
 
 //knnStatsCommandName provide stats command for k-NN plugin.
 var knnStatsCommand = &cobra.Command{
 	Use:   knnStatsCommandName,
-	Short: "Manage the k-NN plugin ",
-	Long:  "Use the k-NN commands to know about the current status of the KNN Plugin.",
+	Short: "Status of KNN Plugin",
+	Long:  "Status command to know about the current status of the KNN Plugin.",
 	Run: func(cmd *cobra.Command, args []string) {
 		h, err := GetKNNHandler()
 		if err != nil {
@@ -65,12 +66,40 @@ var knnStatsCommand = &cobra.Command{
 	},
 }
 
+//knnWarmupCommand warmups shards
+var knnWarmupCommand = &cobra.Command{
+	Use:   knnWarmupCommandName + " index ..." + " [flags] ",
+	Short: "Warmup shards for given indices",
+	Long: "Warmup command loads all graphs for all of the shards (primaries and replicas) " +
+		"for given indices into native memory.\nThis is an asynchronous operation. If the command times out, " +
+		"the operation will still be going on in the cluster.\nTo monitor this, use the Elasticsearch _tasks API. " +
+		"Use `odfe-cli knn stats` command to verify whether indices are successfully loaded into memory.",
+	Run: func(cmd *cobra.Command, args []string) {
+		//If no args, display usage
+		if len(args) < 1 {
+			fmt.Println(cmd.Usage())
+			return
+		}
+		h, err := GetKNNHandler()
+		if err != nil {
+			DisplayError(err, knnWarmupCommandName)
+			return
+		}
+		err = warmupIndices(h, args)
+		DisplayError(err, knnWarmupCommandName)
+	},
+}
+
 func GetKNNCommand() *cobra.Command {
 	return knnCommand
 }
 
 func GetKNNStatsCommand() *cobra.Command {
 	return knnStatsCommand
+}
+
+func GetKNNWarmupCommand() *cobra.Command {
+	return knnWarmupCommand
 }
 
 func init() {
@@ -82,6 +111,9 @@ func init() {
 	knnStatsCommand.Flags().StringP(knnStatsNodesFlagName, "n", "", "Input is list of node Ids, separated by ','")
 	knnStatsCommand.Flags().StringP(knnStatsNamesFlagName, "s", "", "Input is list of stats names, separated by ','")
 	knnCommand.AddCommand(knnStatsCommand)
+	//knn warmup command
+	knnWarmupCommand.Flags().BoolP("help", "h", false, "Help for k-NN plugin warmup command")
+	knnCommand.AddCommand(knnWarmupCommand)
 }
 
 func getStatistics(h *handler.Handler, nodes string, names string) error {
@@ -90,6 +122,18 @@ func getStatistics(h *handler.Handler, nodes string, names string) error {
 		return nil
 	}
 	fmt.Println(string(stats))
+	return nil
+}
+
+func warmupIndices(h *handler.Handler, index []string) error {
+	shards, err := handler.WarmupIndices(h, index)
+	if err != nil {
+		return nil
+	}
+	if shards.Failed > 0 {
+		return fmt.Errorf("%d/%d shards were failed to load into memory", shards.Failed, shards.Total)
+	}
+	fmt.Printf("successfully loaded %d shards into memory\n", shards.Total)
 	return nil
 }
 
