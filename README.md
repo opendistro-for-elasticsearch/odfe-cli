@@ -28,7 +28,7 @@ or from the [releases](https://github.com/opendistro-for-elasticsearch/odfe-cli/
 
 ### Odfe cli and Opendistro plugins compatibility
 
-| odfe-cli version  | odfe plugins  | plugin versions |
+| odfe-cli version  | odfe plugins  | odfe versions |
 | ----------------  | ------------- | --------------- |
 | 1.0               | [Anomaly Detection](https://opendistro.github.io/for-elasticsearch-docs/docs/ad/)  | 1.12.0 |
 
