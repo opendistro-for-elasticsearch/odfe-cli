@@ -36,15 +36,15 @@ const (
 //knnCommand is base command for k-NN plugin.
 var knnCommand = &cobra.Command{
 	Use:   knnCommandName,
-	Short: "Manage the k-NN plugin short for k-nearest neighbors",
+	Short: "Manage the k-NN plugin",
 	Long:  "Use the k-NN commands to perform operations like stats, warmup.",
 }
 
 //knnStatsCommandName provide stats command for k-NN plugin.
 var knnStatsCommand = &cobra.Command{
 	Use:   knnStatsCommandName,
-	Short: "Status of KNN Plugin",
-	Long:  "Status command to know about the current status of the KNN Plugin.",
+	Short: "Display current status of the k-NN Plugin",
+	Long:  "Display current status of the k-NN Plugin.",
 	Run: func(cmd *cobra.Command, args []string) {
 		h, err := GetKNNHandler()
 		if err != nil {

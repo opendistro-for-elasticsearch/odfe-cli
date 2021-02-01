@@ -25,7 +25,7 @@ import (
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen  -destination=mocks/mock_knn.go -package=mocks . Controller
 
-//Controller is an interface for the AD plugin controllers
+//Controller is an interface for the k-NN plugin controllers
 type Controller interface {
 	GetStatistics(context.Context, string, string) ([]byte, error)
 	WarmupIndices(context.Context, []string) (*entity.Shards, error)
