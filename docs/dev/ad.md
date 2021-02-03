@@ -64,10 +64,23 @@ $ odfe-cli ad create --generate-template
 } 
 
 ```
+**Schema Information**
 
-| Field Name  | Description |
-| ----------------  | ------------- | --------------- |
-| 1.0               | [Anomaly Detection](https://opendistro.github.io/for-elasticsearch-docs/docs/ad/)  | 1.12.0 |
+| Field Name         | Description   |
+| ----------------   | ------------- | 
+| name               |  Unique detector name |
+| description        |  A brief description to identify the purpose of this detector.|
+| index              |  List of index or index pattern as datasource.|
+| time_field         |  Timestamp field from datasource |
+| filter             |  Optionally filter the index that you chose as the data source |
+| features           |  List of features from data source that you would like to observe for AD |
+| aggregation_type   |  An aggregation method that determines what constitutes an anomaly. |
+| enabled            |  Enable feature to be part of Anomaly Detector job |
+| field              |  Data source field name from datasource to detect Anomalies |
+| interval           |  Set value at which the detector collects data regularly|
+| window_delay       |  Extra processing time for data collection|
+| start              |  Starts the anomaly detector job immediately after creation  |
+| partition_field    |  Create multiple detectors based on cardinality of this field |
 
 #### Step 2: Save the template as new file
 
