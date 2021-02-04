@@ -26,3 +26,20 @@ type Shards struct {
 type WarmupAPIResponse struct {
 	Shards Shards `json:"_shards"`
 }
+
+//RootCause gives information about type and reason
+type RootCause struct {
+	Type   string `json:"type"`
+	Reason string `json:"reason"`
+}
+
+//Error contains root cause
+type Error struct {
+	RootCause []RootCause `json:"root_cause"`
+}
+
+//ErrorResponse knn request failure error response
+type ErrorResponse struct {
+	KNNError Error `json:"error"`
+	Status   int   `json:"status"`
+}

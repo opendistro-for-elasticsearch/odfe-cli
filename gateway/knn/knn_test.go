@@ -18,11 +18,13 @@ package knn
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"odfe-cli/client"
 	"odfe-cli/client/mocks"
 	"odfe-cli/entity"
+	"odfe-cli/entity/knn"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -33,10 +35,24 @@ func getTestClient(t *testing.T, url string, code int) *client.Client {
 		// Test request parameters
 		assert.Equal(t, req.URL.String(), url)
 		assert.EqualValues(t, len(req.Header), 2)
+		response := []byte("success")
+		if code == http.StatusNotFound {
+			response, _ = json.Marshal(knn.ErrorResponse{
+				KNNError: knn.Error{
+					RootCause: []knn.RootCause{
+						{
+							Type:   "index_not_found_exception",
+							Reason: "no such index",
+						},
+					},
+				},
+				Status: code,
+			})
+		}
 		return &http.Response{
 			StatusCode: code,
 			// Send response to be tested
-			Body: ioutil.NopCloser(bytes.NewBufferString("response")),
+			Body: ioutil.NopCloser(bytes.NewBuffer(response)),
 			// Must be set to non-nil value or it panics
 			Header: make(http.Header),
 		}
@@ -55,7 +71,7 @@ func TestGatewayGetStatistics(t *testing.T) {
 		})
 		actual, err := testGateway.GetStatistics(ctx, "", "")
 		assert.NoError(t, err)
-		assert.EqualValues(t, string(actual), "response")
+		assert.EqualValues(t, string(actual), "success")
 	})
 	t.Run("filtered node and stats succeeded", func(t *testing.T) {
 
@@ -67,7 +83,7 @@ func TestGatewayGetStatistics(t *testing.T) {
 		})
 		actual, err := testGateway.GetStatistics(ctx, "node1,node2", "stat1")
 		assert.NoError(t, err)
-		assert.EqualValues(t, string(actual), "response")
+		assert.EqualValues(t, string(actual), "success")
 	})
 	t.Run("filtered node succeeded", func(t *testing.T) {
 
@@ -79,7 +95,7 @@ func TestGatewayGetStatistics(t *testing.T) {
 		})
 		actual, err := testGateway.GetStatistics(ctx, "node1,node2", "")
 		assert.NoError(t, err)
-		assert.EqualValues(t, string(actual), "response")
+		assert.EqualValues(t, string(actual), "success")
 	})
 	t.Run("filtered stats succeeded", func(t *testing.T) {
 
@@ -91,7 +107,7 @@ func TestGatewayGetStatistics(t *testing.T) {
 		})
 		actual, err := testGateway.GetStatistics(ctx, "", "stat1,stat2")
 		assert.NoError(t, err)
-		assert.EqualValues(t, string(actual), "response")
+		assert.EqualValues(t, string(actual), "success")
 	})
 	t.Run("gateway failed due to bad user config", func(t *testing.T) {
 
@@ -129,7 +145,7 @@ func TestGatewayWarmupIndices(t *testing.T) {
 		})
 		actual, err := testGateway.WarmupIndices(ctx, "index1,index2")
 		assert.NoError(t, err)
-		assert.EqualValues(t, string(actual), "response")
+		assert.EqualValues(t, string(actual), "success")
 	})
 	t.Run("failed due to bad user config", func(t *testing.T) {
 
@@ -142,15 +158,15 @@ func TestGatewayWarmupIndices(t *testing.T) {
 		_, err := testGateway.WarmupIndices(ctx, "index1")
 		assert.EqualError(t, err, "user name and password cannot be empty")
 	})
-	t.Run("failed due to gateway error", func(t *testing.T) {
+	t.Run("failed due to invalid index", func(t *testing.T) {
 
-		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1", 400)
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1", 404)
 		testGateway := New(testClient, &entity.Profile{
 			Endpoint: "http://localhost:9200",
 			UserName: "admin",
 			Password: "admin",
 		})
 		_, err := testGateway.WarmupIndices(ctx, "index1")
-		assert.Error(t, err)
+		assert.EqualErrorf(t, err, "no such index", "failed to parse error")
 	})
 }

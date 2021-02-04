@@ -172,6 +172,13 @@ func (a *KNNTestSuite) TestWarmupIndices() {
 		assert.True(t, response.Total > 0)
 		assert.EqualValues(t, response.Total, response.Successful)
 	})
+
+	a.T().Run("test warmup failure", func(t *testing.T) {
+		ctx := context.Background()
+		_, err := a.Controller.WarmupIndices(ctx, []string{"invalid-index-name"})
+		assert.Error(t, err, "failed to load graph into memory")
+		assert.EqualErrorf(t, err, "no such index [invalid-index-name]", "failed to parse error")
+	})
 }
 
 // In order for 'go test' to run this suite, we need to create

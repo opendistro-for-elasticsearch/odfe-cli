@@ -119,7 +119,7 @@ func init() {
 func getStatistics(h *handler.Handler, nodes string, names string) error {
 	stats, err := handler.GetStatistics(h, nodes, names)
 	if err != nil {
-		return nil
+		return err
 	}
 	fmt.Println(string(stats))
 	return nil
@@ -128,7 +128,7 @@ func getStatistics(h *handler.Handler, nodes string, names string) error {
 func warmupIndices(h *handler.Handler, index []string) error {
 	shards, err := handler.WarmupIndices(h, index)
 	if err != nil {
-		return nil
+		return err
 	}
 	if shards.Failed > 0 {
 		return fmt.Errorf("%d/%d shards were failed to load into memory", shards.Failed, shards.Total)

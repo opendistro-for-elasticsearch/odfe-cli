@@ -17,11 +17,14 @@ package knn
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"odfe-cli/client"
 	"odfe-cli/entity"
+	"odfe-cli/entity/knn"
 	gw "odfe-cli/gateway"
 )
 
@@ -133,6 +136,19 @@ func (g gateway) GetStatistics(ctx context.Context, nodes string, names string) 
 	return response, nil
 }
 
+func processWarmupError(err error) error {
+	var k knn.ErrorResponse
+	data := fmt.Sprintf("%v", err)
+	responseErr := json.Unmarshal([]byte(data), &k)
+	if responseErr != nil {
+		return err
+	}
+	if len(k.KNNError.RootCause) > 0 {
+		return errors.New(k.KNNError.RootCause[0].Reason)
+	}
+	return err
+}
+
 /* WarmupIndices will perform warmup on given indices
 GET /_opendistro/_knn/warmup/index1,index2,index3?pretty
 {
@@ -154,7 +170,7 @@ func (g gateway) WarmupIndices(ctx context.Context, indices string) ([]byte, err
 	}
 	response, err := g.Call(request, http.StatusOK)
 	if err != nil {
-		return nil, err
+		return nil, processWarmupError(err)
 	}
 	return response, nil
 }
