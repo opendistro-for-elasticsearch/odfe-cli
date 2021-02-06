@@ -30,25 +30,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func getTestClient(t *testing.T, url string, code int) *client.Client {
+func getTestClient(t *testing.T, url string, code int, response []byte) *client.Client {
 	return mocks.NewTestClient(func(req *http.Request) *http.Response {
 		// Test request parameters
 		assert.Equal(t, req.URL.String(), url)
 		assert.EqualValues(t, len(req.Header), 2)
-		response := []byte("success")
-		if code == http.StatusNotFound {
-			response, _ = json.Marshal(knn.ErrorResponse{
-				KNNError: knn.Error{
-					RootCause: []knn.RootCause{
-						{
-							Type:   "index_not_found_exception",
-							Reason: "no such index",
-						},
-					},
-				},
-				Status: code,
-			})
-		}
 		return &http.Response{
 			StatusCode: code,
 			// Send response to be tested
@@ -63,7 +49,7 @@ func TestGatewayGetStatistics(t *testing.T) {
 	ctx := context.Background()
 	t.Run("full stats succeeded", func(t *testing.T) {
 
-		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/stats", 200)
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/stats", 200, []byte("success"))
 		testGateway := New(testClient, &entity.Profile{
 			Endpoint: "http://localhost:9200",
 			UserName: "admin",
@@ -75,7 +61,7 @@ func TestGatewayGetStatistics(t *testing.T) {
 	})
 	t.Run("filtered node and stats succeeded", func(t *testing.T) {
 
-		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/node1,node2/stats/stat1", 200)
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/node1,node2/stats/stat1", 200, []byte("success"))
 		testGateway := New(testClient, &entity.Profile{
 			Endpoint: "http://localhost:9200",
 			UserName: "admin",
@@ -87,7 +73,7 @@ func TestGatewayGetStatistics(t *testing.T) {
 	})
 	t.Run("filtered node succeeded", func(t *testing.T) {
 
-		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/node1,node2/stats/", 200)
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/node1,node2/stats/", 200, []byte("success"))
 		testGateway := New(testClient, &entity.Profile{
 			Endpoint: "http://localhost:9200",
 			UserName: "admin",
@@ -99,7 +85,7 @@ func TestGatewayGetStatistics(t *testing.T) {
 	})
 	t.Run("filtered stats succeeded", func(t *testing.T) {
 
-		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn//stats/stat1,stat2", 200)
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn//stats/stat1,stat2", 200, []byte("success"))
 		testGateway := New(testClient, &entity.Profile{
 			Endpoint: "http://localhost:9200",
 			UserName: "admin",
@@ -111,7 +97,7 @@ func TestGatewayGetStatistics(t *testing.T) {
 	})
 	t.Run("gateway failed due to bad user config", func(t *testing.T) {
 
-		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/stats", 400)
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/stats", 400, []byte("failed"))
 		testGateway := New(testClient, &entity.Profile{
 			Endpoint: "http://localhost:9200",
 			UserName: "",
@@ -122,7 +108,7 @@ func TestGatewayGetStatistics(t *testing.T) {
 	})
 	t.Run("gateway failed due to gateway user config", func(t *testing.T) {
 
-		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/stats", 400)
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/stats", 400, []byte("failed"))
 		testGateway := New(testClient, &entity.Profile{
 			Endpoint: "http://localhost:9200",
 			UserName: "admin",
@@ -131,13 +117,35 @@ func TestGatewayGetStatistics(t *testing.T) {
 		_, err := testGateway.GetStatistics(ctx, "", "")
 		assert.Error(t, err)
 	})
+	t.Run("failed due to invalid stat names", func(t *testing.T) {
+		reason := "request [/_opendistro/_knn//stats/graph_count] contains unrecognized stat: [stat1]"
+		response, _ := json.Marshal(knn.ErrorResponse{
+			KNNError: knn.Error{
+				RootCause: []knn.RootCause{
+					{
+						Type:   "stat_not_found_exception",
+						Reason: reason,
+					},
+				},
+			},
+			Status: 404,
+		})
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/index1/stats/invalid-stats", 404, response)
+		testGateway := New(testClient, &entity.Profile{
+			Endpoint: "http://localhost:9200",
+			UserName: "admin",
+			Password: "admin",
+		})
+		_, err := testGateway.GetStatistics(ctx, "index1", "invalid-stats")
+		assert.EqualErrorf(t, err, reason, "failed to parse error")
+	})
 }
 
 func TestGatewayWarmupIndices(t *testing.T) {
 	ctx := context.Background()
 	t.Run("warmup indices", func(t *testing.T) {
 
-		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1,index2", 200)
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1,index2", 200, []byte("success"))
 		testGateway := New(testClient, &entity.Profile{
 			Endpoint: "http://localhost:9200",
 			UserName: "admin",
@@ -149,7 +157,7 @@ func TestGatewayWarmupIndices(t *testing.T) {
 	})
 	t.Run("failed due to bad user config", func(t *testing.T) {
 
-		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1", 400)
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1", 400, []byte("failed"))
 		testGateway := New(testClient, &entity.Profile{
 			Endpoint: "http://localhost:9200",
 			UserName: "",
@@ -160,7 +168,18 @@ func TestGatewayWarmupIndices(t *testing.T) {
 	})
 	t.Run("failed due to invalid index", func(t *testing.T) {
 
-		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1", 404)
+		response, _ := json.Marshal(knn.ErrorResponse{
+			KNNError: knn.Error{
+				RootCause: []knn.RootCause{
+					{
+						Type:   "index_not_found_exception",
+						Reason: "no such index",
+					},
+				},
+			},
+			Status: 404,
+		})
+		testClient := getTestClient(t, "http://localhost:9200/_opendistro/_knn/warmup/index1", 404, response)
 		testGateway := New(testClient, &entity.Profile{
 			Endpoint: "http://localhost:9200",
 			UserName: "admin",

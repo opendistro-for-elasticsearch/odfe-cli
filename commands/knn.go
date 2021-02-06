@@ -69,17 +69,13 @@ var knnStatsCommand = &cobra.Command{
 //knnWarmupCommand warmups shards
 var knnWarmupCommand = &cobra.Command{
 	Use:   knnWarmupCommandName + " index ..." + " [flags] ",
+	Args:  cobra.MinimumNArgs(1),
 	Short: "Warmup shards for given indices",
 	Long: "Warmup command loads all graphs for all of the shards (primaries and replicas) " +
 		"for given indices into native memory.\nThis is an asynchronous operation. If the command times out, " +
 		"the operation will still be going on in the cluster.\nTo monitor this, use the Elasticsearch _tasks API. " +
 		"Use `odfe-cli knn stats` command to verify whether indices are successfully loaded into memory.",
 	Run: func(cmd *cobra.Command, args []string) {
-		//If no args, display usage
-		if len(args) < 1 {
-			fmt.Println(cmd.Usage())
-			return
-		}
 		h, err := GetKNNHandler()
 		if err != nil {
 			DisplayError(err, knnWarmupCommandName)

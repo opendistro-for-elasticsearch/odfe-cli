@@ -131,12 +131,12 @@ func (g gateway) GetStatistics(ctx context.Context, nodes string, names string) 
 	}
 	response, err := g.Call(request, http.StatusOK)
 	if err != nil {
-		return nil, err
+		return nil, processKNNError(err)
 	}
 	return response, nil
 }
 
-func processWarmupError(err error) error {
+func processKNNError(err error) error {
 	var k knn.ErrorResponse
 	data := fmt.Sprintf("%v", err)
 	responseErr := json.Unmarshal([]byte(data), &k)
@@ -170,7 +170,7 @@ func (g gateway) WarmupIndices(ctx context.Context, indices string) ([]byte, err
 	}
 	response, err := g.Call(request, http.StatusOK)
 	if err != nil {
-		return nil, processWarmupError(err)
+		return nil, processKNNError(err)
 	}
 	return response, nil
 }

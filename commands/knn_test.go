@@ -64,9 +64,8 @@ func TestWarmupIndices(t *testing.T) {
 		knnWarmupCmd := GetKNNWarmupCommand()
 		knnCommand.AddCommand(knnWarmupCmd)
 		rootCmd.AddCommand(knnCommand)
-		result, err := executeCommand(rootCmd, knnCommandName, knnWarmupCommandName)
-		assert.NoError(t, err)
-		assert.NotEmpty(t, result, "command failed")
+		_, err := executeCommand(rootCmd, knnCommandName, knnWarmupCommandName)
+		assert.Error(t, err)
 	})
 	t.Run("test warmup command", func(t *testing.T) {
 		rootCmd := GetRoot()
