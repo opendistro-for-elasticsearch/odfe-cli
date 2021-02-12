@@ -2,12 +2,11 @@
 
 ## Objective
 
-This document describes how to support [REST API](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html) in a generic way.
+This document describes how to support [REST api](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html) in a generic way.
 As of now, Elasticsearch support api in different categories like index api, cat api, cluster api, document api, etc to
 configure and access their features. It will take tremendous amount of time and effort to provide every api as native commands.
-Hence, we will be categorizing those REST API based on GET/PUT/POST/DELETE  and allow users to perform their request 
-in a generic way. This will support any future API without any additional support. It also benefits plugin owners while on-boarding their plugin. 
-
+Hence, we will be categorizing those REST api based on GET/PUT/POST/DELETE  and allow users to perform their request 
+in a generic way. This will support any future api without any additional support.
 ## Available commands
 
 1. [get command](./odfe-cli-rest-api-as-commands.md#1-get-command)
@@ -17,7 +16,7 @@ in a generic way. This will support any future API without any additional suppor
 
 ## Common parameters
 
-The following options can be applied to all of the odfe-cli commands. These parameters are supported by Elasticsearch as mentioned [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html).
+The following options can be applied to all the odfe-cli commands. These parameters are supported by Elasticsearch as mentioned [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html).
 In the future we will support more parameters or include multiple values that can be added as flag to any commands.
 
 
@@ -35,7 +34,7 @@ In the future we will support more parameters or include multiple values that ca
 
 ### Description
 
-Use GET API to execute requests against Elasticsearch cluster. This command enables you to run any GET based REST API commands across all 
+Use GET api to execute requests against Elasticsearch cluster. This command enables you to run any GET based REST api commands across all 
 categories.
 
 ### Synopsis
@@ -78,7 +77,7 @@ Response
 epoch         timestamp        count
 1612311592    12:24:24          100
 ```
-2.  To  returns the health status of a cluster.
+2.  To  return the health status of a cluster
 
 ```
 odfe-cli curl get --path "_cluster/health" --pretty
@@ -123,7 +122,7 @@ odfe-cli curl get --path "_cluster/allocation/explain" \
 
 ### Description
 
-Use POST API to execute requests against Elasticsearch cluster. This command enables you to run any POST based REST API
+Use POST api to execute requests against Elasticsearch cluster. This command enables you to run any POST based REST api
 commands across all categories.
 
 ### Synopsis
@@ -190,7 +189,7 @@ $ odfe-cli curl post --path "my-index-01/_doc" \
  ```
  $ odfe-cli curl post --path        "_search" \
                      --headers     "Content-Encoding : gzip;Accept-Encoding: gzip, deflate" \
-                     --data-bianry  @/tmp/req.txt.gz`
+                     --data-binary  @/tmp/req.txt.gz`
     
 ```    
 
@@ -198,7 +197,7 @@ $ odfe-cli curl post --path "my-index-01/_doc" \
 
 ### Description
 
-Use PUT API to execute requests against Elasticsearch. This command enables you to run any PUT based REST API
+Use PUT api to execute requests against Elasticsearch. This command enables you to run any PUT based REST api
 commands across all categories.
 
 ### Synopsis
@@ -260,8 +259,8 @@ odfe-cli curl put --path             "_cluster/settings" \
 
 ### Description
 
-Use DELETE API to execute requests against Elasticsearch. This command enables you to run any DELETE based
-REST API commands across all categories.
+Use DELETE api to execute requests against Elasticsearch. This command enables you to run any DELETE based
+REST api commands across all categories.
 
 ### Synopsis
 
@@ -295,8 +294,8 @@ odfe-cli curl delete --path         "my-index/_doc/1" \
 
 ## Request for Comments:
 
-We would like comments and feedback on the proposal for supporting REST API in our  ODFE CLI tool [here](https://github.com/opendistro-for-elasticsearch/odfe-cli/issues/37). Some specific questions we’re seeking feedback include
+We would like comments and feedback on the proposal for supporting REST api in our  ODFE CLI tool [here](https://github.com/opendistro-for-elasticsearch/odfe-cli/issues/37). Some specific questions we’re seeking feedback include
 
-1. Can you share your use case (or API ) that you think will not be covered with above synopsis?
+1. Can you share your use case (or api ) that you think will not be covered with above synopsis?
 2. “curl” is chosen as a  category (or parent command) for get,put,post,delete commands, to  differentiate from plugin names. Do you prefer any other command name?
 
