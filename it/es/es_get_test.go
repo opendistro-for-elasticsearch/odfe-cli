@@ -125,7 +125,7 @@ func (a *ESGetTestSuite) TestCurlGet() {
 		assert.True(t, len(health.Status) > 0)
 		assert.EqualValues(t, "yellow", health.Status)
 		assert.EqualValues(t, "odfe-test-cluster", health.Name)
-		assert.EqualValues(t, 1.0, health.Nodes)
+		assert.EqualValues(t, "1", health.Nodes)
 	})
 }
 

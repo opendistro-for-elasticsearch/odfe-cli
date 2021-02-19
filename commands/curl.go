@@ -27,13 +27,14 @@ import (
 )
 
 const (
-	curlCommandName          = "curl"
-	curlPrettyFlagName       = "pretty"
-	curlPathFlagName         = "path"
-	curlQueryParamsFlagName  = "query-params"
-	curlDataFlagName         = "data"
-	curlHeadersFlagName      = "headers"
-	curlOutputFormatFlagName = "output-format"
+	curlCommandName              = "curl"
+	curlPrettyFlagName           = "pretty"
+	curlPathFlagName             = "path"
+	curlQueryParamsFlagName      = "query-params"
+	curlDataFlagName             = "data"
+	curlHeadersFlagName          = "headers"
+	curlOutputFormatFlagName     = "output-format"
+	curlOutputFilterPathFlagName = "filter-path"
 )
 
 //curlCommand is base command for Elasticsearch REST APIs.
@@ -47,7 +48,9 @@ func init() {
 	curlCommand.Flags().BoolP("help", "h", false, "Help for curl command")
 	curlCommand.PersistentFlags().Bool(curlPrettyFlagName, false, "Response will be formatted")
 	curlCommand.PersistentFlags().StringP(curlOutputFormatFlagName, "o", "",
-		"Output format if supported by cluster, else, default format by elasticsearch. Example json, yaml")
+		"Output format if supported by cluster, else, default format by Elasticsearch. Example json, yaml")
+	curlCommand.PersistentFlags().StringP(curlOutputFilterPathFlagName, "f", "",
+		"Filter output fields returned by Elasticsearch. Use comma ',' to separate list of filters")
 	GetRoot().AddCommand(curlCommand)
 }
 
@@ -96,16 +99,17 @@ func FormatOutput() bool {
 	return isPretty
 }
 
-func GetOutputFormat() string {
-	format, _ := curlCommand.PersistentFlags().GetString(curlOutputFormatFlagName)
+func GetUserInputAsStringForFlag(flagName string) string {
+	format, _ := curlCommand.PersistentFlags().GetString(flagName)
 	return format
 }
 
 func Run(cmd cobra.Command, cmdName string) {
 	input := entity.CurlCommandRequest{
-		Action:       cmdName,
-		Pretty:       FormatOutput(),
-		OutputFormat: GetOutputFormat(),
+		Action:           cmdName,
+		Pretty:           FormatOutput(),
+		OutputFormat:     GetUserInputAsStringForFlag(curlOutputFormatFlagName),
+		OutputFilterPath: GetUserInputAsStringForFlag(curlOutputFilterPathFlagName),
 	}
 	input.Path, _ = cmd.Flags().GetString(curlPathFlagName)
 	input.QueryParams, _ = cmd.Flags().GetString(curlQueryParamsFlagName)

@@ -26,12 +26,13 @@ import (
 )
 
 const (
-	HeaderSeparator              = ":"
-	MultipleHeaderSeparator      = ";"
-	QueryParamSeparator          = "&"
-	FileNameIdentifier           = "@"
-	PrettyPrintQueryParameter    = "pretty=true"
-	FormatQueryParameterTemplate = "format=%s"
+	HeaderSeparator                  = ":"
+	MultipleHeaderSeparator          = ";"
+	QueryParamSeparator              = "&"
+	FileNameIdentifier               = "@"
+	PrettyPrintQueryParameter        = "pretty=true"
+	FormatQueryParameterTemplate     = "format=%s"
+	FilterPathQueryParameterTemplate = "filter_path=%s"
 )
 
 //CommandToCurlRequestParameter map user input to Elasticsearch request
@@ -49,22 +50,27 @@ func CommandToCurlRequestParameter(request es.CurlCommandRequest) (result es.Cur
 	if !isEmpty(request.Path) {
 		result.Path = request.Path
 	}
-	if !isEmpty(request.QueryParams) {
-		result.QueryParams = request.QueryParams
-	}
+	result.QueryParams = request.QueryParams
+	var additionalQueryParams []string
 	if request.Pretty {
-		result.QueryParams = appendQueryParameter(result.QueryParams, PrettyPrintQueryParameter)
+		additionalQueryParams = append(additionalQueryParams, PrettyPrintQueryParameter)
 	}
 	if !isEmpty(request.OutputFormat) {
-		result.QueryParams = appendQueryParameter(result.QueryParams, fmt.Sprintf(FormatQueryParameterTemplate, request.OutputFormat))
+		additionalQueryParams = append(additionalQueryParams, fmt.Sprintf(FormatQueryParameterTemplate, strings.TrimSpace(request.OutputFormat)))
 
+	}
+	if !isEmpty(request.OutputFilterPath) {
+		additionalQueryParams = append(additionalQueryParams, fmt.Sprintf(FilterPathQueryParameterTemplate, strings.TrimSpace(request.OutputFilterPath)))
+	}
+	if len(additionalQueryParams) > 0 {
+		result.QueryParams = appendQueryParameter(result.QueryParams, additionalQueryParams)
 	}
 	return
 }
 
-func appendQueryParameter(path string, param string) string {
+func appendQueryParameter(path string, param []string) string {
 	splitValues := strings.Split(path, QueryParamSeparator)
-	splitValues = append(splitValues, strings.TrimSpace(param))
+	splitValues = append(splitValues, param...)
 	return strings.Join(splitValues, QueryParamSeparator)
 }
 

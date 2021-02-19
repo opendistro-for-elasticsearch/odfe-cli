@@ -16,8 +16,6 @@
 package commands
 
 import (
-	entity "odfe-cli/entity/es"
-
 	"github.com/spf13/cobra"
 )
 
@@ -35,15 +33,7 @@ var curlDeleteCmd = &cobra.Command{
 	Long:    "Delete command enables you to run any DELETE API against cluster",
 	Example: curlDeleteExample,
 	Run: func(cmd *cobra.Command, args []string) {
-		input := entity.CurlCommandRequest{
-			Action: curlDeleteCommandName,
-			Pretty: FormatOutput(),
-		}
-		input.Path, _ = cmd.Flags().GetString(curlPathFlagName)
-		input.QueryParams, _ = cmd.Flags().GetString(curlQueryParamsFlagName)
-		input.Headers, _ = cmd.Flags().GetString(curlHeadersFlagName)
-		err := CurlActionExecute(input)
-		DisplayError(err, curlDeleteCommandName)
+		Run(*cmd, curlDeleteCommandName)
 	},
 }
 
