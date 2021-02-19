@@ -27,12 +27,13 @@ import (
 )
 
 const (
-	curlCommandName         = "curl"
-	curlPrettyFlagName      = "pretty"
-	curlPathFlagName        = "path"
-	curlQueryParamsFlagName = "query-params"
-	curlDataFlagName        = "data"
-	curlHeadersFlagName     = "headers"
+	curlCommandName          = "curl"
+	curlPrettyFlagName       = "pretty"
+	curlPathFlagName         = "path"
+	curlQueryParamsFlagName  = "query-params"
+	curlDataFlagName         = "data"
+	curlHeadersFlagName      = "headers"
+	curlOutputFormatFlagName = "output-format"
 )
 
 //curlCommand is base command for Elasticsearch REST APIs.
@@ -45,6 +46,8 @@ var curlCommand = &cobra.Command{
 func init() {
 	curlCommand.Flags().BoolP("help", "h", false, "Help for curl command")
 	curlCommand.PersistentFlags().Bool(curlPrettyFlagName, false, "Response will be formatted")
+	curlCommand.PersistentFlags().StringP(curlOutputFormatFlagName, "o", "",
+		"Output format if supported by cluster, else, default format by elasticsearch. Example json, yaml")
 	GetRoot().AddCommand(curlCommand)
 }
 
@@ -93,15 +96,21 @@ func FormatOutput() bool {
 	return isPretty
 }
 
+func GetOutputFormat() string {
+	format, _ := curlCommand.PersistentFlags().GetString(curlOutputFormatFlagName)
+	return format
+}
+
 func Run(cmd cobra.Command, cmdName string) {
 	input := entity.CurlCommandRequest{
-		Action: cmdName,
-		Pretty: FormatOutput(),
+		Action:       cmdName,
+		Pretty:       FormatOutput(),
+		OutputFormat: GetOutputFormat(),
 	}
 	input.Path, _ = cmd.Flags().GetString(curlPathFlagName)
 	input.QueryParams, _ = cmd.Flags().GetString(curlQueryParamsFlagName)
 	input.Data, _ = cmd.Flags().GetString(curlDataFlagName)
 	input.Headers, _ = cmd.Flags().GetString(curlHeadersFlagName)
 	err := CurlActionExecute(input)
-	DisplayError(err, curlGetCommandName)
+	DisplayError(err, cmdName)
 }

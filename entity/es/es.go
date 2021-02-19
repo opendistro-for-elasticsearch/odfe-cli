@@ -68,10 +68,11 @@ type CurlRequest struct {
 
 //CurlCommandRequest contains parameter from command
 type CurlCommandRequest struct {
-	Action      string
-	Path        string
-	QueryParams string
-	Headers     string
-	Data        string
-	Pretty      bool
+	Action       string
+	Path         string
+	QueryParams  string
+	Headers      string
+	Data         string
+	Pretty       bool
+	OutputFormat string
 }

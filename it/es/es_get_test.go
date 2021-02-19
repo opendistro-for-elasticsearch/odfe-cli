@@ -31,6 +31,8 @@ import (
 	"strings"
 	"testing"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -105,6 +107,25 @@ func (a *ESGetTestSuite) TestCurlGet() {
 		assert.EqualValues(t, "yellow", health["status"])
 		assert.EqualValues(t, "odfe-test-cluster", health["cluster_name"])
 		assert.EqualValues(t, 1.0, health["number_of_nodes"])
+	})
+	a.T().Run("health status of a cluster in yaml", func(t *testing.T) {
+		ctx := context.Background()
+		request.QueryParams = ""
+		request.Path = "_cluster/health"
+		request.OutputFormat = "yaml"
+		response, err := a.Controller.Curl(ctx, request)
+		assert.NoError(t, err, "failed to get response")
+		assert.NotNil(t, response)
+		var health struct {
+			Name   string `yaml:"cluster_name"`
+			Nodes  string `yaml:"number_of_nodes"`
+			Status string `yaml:"status"`
+		}
+		assert.NoError(t, yaml.Unmarshal(response, &health))
+		assert.True(t, len(health.Status) > 0)
+		assert.EqualValues(t, "yellow", health.Status)
+		assert.EqualValues(t, "odfe-test-cluster", health.Name)
+		assert.EqualValues(t, 1.0, health.Nodes)
 	})
 }
 

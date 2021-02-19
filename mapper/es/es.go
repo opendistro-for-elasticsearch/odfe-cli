@@ -26,11 +26,12 @@ import (
 )
 
 const (
-	HeaderSeparator           = ":"
-	MultipleHeaderSeparator   = ";"
-	QueryParamSeparator       = "&"
-	FileNameIdentifier        = "@"
-	PrettyPrintQueryParameter = "pretty=true"
+	HeaderSeparator              = ":"
+	MultipleHeaderSeparator      = ";"
+	QueryParamSeparator          = "&"
+	FileNameIdentifier           = "@"
+	PrettyPrintQueryParameter    = "pretty=true"
+	FormatQueryParameterTemplate = "format=%s"
 )
 
 //CommandToCurlRequestParameter map user input to Elasticsearch request
@@ -48,17 +49,22 @@ func CommandToCurlRequestParameter(request es.CurlCommandRequest) (result es.Cur
 	if !isEmpty(request.Path) {
 		result.Path = request.Path
 	}
-	result.QueryParams = request.QueryParams
-	if !request.Pretty {
-		return
+	if !isEmpty(request.QueryParams) {
+		result.QueryParams = request.QueryParams
 	}
-	result.QueryParams = addPrettyToQueryParameter(result.QueryParams)
+	if request.Pretty {
+		result.QueryParams = appendQueryParameter(result.QueryParams, PrettyPrintQueryParameter)
+	}
+	if !isEmpty(request.OutputFormat) {
+		result.QueryParams = appendQueryParameter(result.QueryParams, fmt.Sprintf(FormatQueryParameterTemplate, request.OutputFormat))
+
+	}
 	return
 }
 
-func addPrettyToQueryParameter(path string) string {
+func appendQueryParameter(path string, param string) string {
 	splitValues := strings.Split(path, QueryParamSeparator)
-	splitValues = append(splitValues, PrettyPrintQueryParameter)
+	splitValues = append(splitValues, strings.TrimSpace(param))
 	return strings.Join(splitValues, QueryParamSeparator)
 }
 
