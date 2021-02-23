@@ -26,7 +26,7 @@ var curlGetExample = `
 odfe-cli curl get --path "_cat/count/my-index-01" --query-params "v=true" --pretty
 
 # get health status of a cluster.
-odfe-cli curl get --path "_cluster/health" --pretty
+odfe-cli curl get --path "_cluster/health" --pretty --filter-path "status"
 
 # get explanation for cluster allocation for a given index and shard number
 odfe-cli curl get --path "_cluster/allocation/explain" \
