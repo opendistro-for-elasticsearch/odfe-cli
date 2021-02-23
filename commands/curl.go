@@ -40,8 +40,8 @@ const (
 //curlCommand is base command for Elasticsearch REST APIs.
 var curlCommand = &cobra.Command{
 	Use:   curlCommandName,
-	Short: "Manage elasticsearch core features",
-	Long:  "Use curl command to configure and access features directly",
+	Short: "Manage Elasticsearch core features",
+	Long:  "Use the curl command to execute any REST API calls against the cluster.",
 }
 
 func init() {
