@@ -80,7 +80,7 @@ func (g *HTTPGateway) isValidResponse(response *http.Response) error {
 func (g *HTTPGateway) Execute(req *retryablehttp.Request) ([]byte, error) {
 	if g.Profile.AWS != nil {
 		//sign request
-		if err := signer.SignRequest(req, g.Profile.AWS.ProfileName, signer.GetV4Signer); err != nil {
+		if err := signer.SignRequest(req, *g.Profile.AWS, signer.GetV4Signer); err != nil {
 			return nil, err
 		}
 	}

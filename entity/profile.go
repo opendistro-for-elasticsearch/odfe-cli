@@ -17,6 +17,7 @@ package entity
 
 type AWSIAM struct {
 	ProfileName string `yaml:"profile"`
+	ServiceName string `yaml:"service"`
 }
 type Profile struct {
 	Name     string  `yaml:"name"`

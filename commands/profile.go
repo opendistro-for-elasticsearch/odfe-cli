@@ -102,7 +102,7 @@ var createProfileCmd = &cobra.Command{
 			DisplayError(err, CreateNewProfileCommandName)
 			return
 		}
-		fmt.Println("profile created successfully")
+		fmt.Println("Profile created successfully.")
 	},
 }
 
@@ -128,7 +128,7 @@ var deleteProfilesCmd = &cobra.Command{
 			DisplayError(err, DeleteProfilesCommandName)
 			return
 		}
-		fmt.Println("profile deleted successfully")
+		fmt.Println("Profile deleted successfully.")
 	},
 }
 
@@ -172,10 +172,9 @@ func init() {
 	_ = createProfileCmd.MarkFlagRequired(FlagProfileCreateName)
 	createProfileCmd.Flags().StringP(FlagProfileCreateEndpoint, "e", "", "Create profile with this endpoint or host")
 	_ = createProfileCmd.MarkFlagRequired(FlagProfileCreateEndpoint)
-	createProfileCmd.Flags().StringP(FlagProfileCreateAuthType, "a", "", "Authentication type; permitted values are disabled, "+
-		"basic and aws-iam.\nIf security is disabled, provide --auth-type='disabled'.\nIf security is configured to "+
-		"basic HTTP Authentication, provide --auth-type='basic'.\nIf security is configured to use AWS IAM ARN as user, "+
-		"provide --auth-type='aws-iam'. The rest of the options are asked from the tty based on this value")
+	createProfileCmd.Flags().StringP(FlagProfileCreateAuthType, "a", "", "Authentication type. Options are disabled, basic and aws-iam."+
+		"\nIf security is disabled, provide --auth-type='disabled'.\nIf security uses HTTP basic authentication, provide --auth-type='basic'.\n"+
+		"If security uses AWS IAM ARNs as users, provide --auth-type='aws-iam'.\nodfe-cli asks for additional information based on your choice of authentication type.")
 	_ = createProfileCmd.MarkFlagRequired(FlagProfileCreateAuthType)
 	createProfileCmd.Flags().BoolP(FlagProfileHelp, "h", false, "Help for "+CreateNewProfileCommandName)
 
@@ -217,7 +216,7 @@ func validateProfileName(name string, controller profile.Controller) error {
 
 // getBasicAuthDetails gets new basic HTTP Auth profile information from user using command line
 func getBasicAuthDetails(newProfile *entity.Profile) {
-	fmt.Printf("User Name: ")
+	fmt.Printf("Username: ")
 	newProfile.UserName = getUserInputAsText(checkInputIsNotEmpty)
 	fmt.Printf("Password: ")
 	newProfile.Password = getUserInputAsMaskedText(checkInputIsNotEmpty)
@@ -225,10 +224,11 @@ func getBasicAuthDetails(newProfile *entity.Profile) {
 
 // getAWSIAMAuthDetails gets new AWS IAM Auth profile information from user using command line
 func getAWSIAMAuthDetails(newProfile *entity.Profile) {
-	fmt.Printf("AWS profile name (Leave blank if you want to provide credentials using environment variables): ")
-	awsIAM := &entity.AWSIAM{
-		ProfileName: getUserInputAsText(nil),
-	}
+	fmt.Printf("AWS profile name (leave blank if you want to provide credentials using environment variables): ")
+	awsIAM := &entity.AWSIAM{}
+	awsIAM.ProfileName = getUserInputAsText(nil)
+	fmt.Printf("AWS service name where your cluster is deployed (for Amazon Elasticsearch Service, use 'es'. For EC2, use 'ec2'): ")
+	awsIAM.ServiceName = getUserInputAsText(checkInputIsNotEmpty)
 	newProfile.AWS = awsIAM
 }
 

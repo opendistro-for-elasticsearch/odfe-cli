@@ -17,6 +17,7 @@ package signer
 
 import (
 	"net/http"
+	"odfe-cli/entity"
 	"os"
 	"testing"
 
@@ -40,7 +41,10 @@ func TestV4Signer(t *testing.T) {
 		defer func() {
 			os.Setenv("AWS_REGION", region)
 		}()
-		err := SignRequest(req, "test1", func(c *credentials.Credentials) *v4.Signer {
+		err := SignRequest(req, entity.AWSIAM{
+			ProfileName: "test1",
+			ServiceName: "es",
+		}, func(c *credentials.Credentials) *v4.Signer {
 			return buildSigner()
 		})
 		assert.NoError(t, err)
@@ -55,7 +59,10 @@ func TestV4Signer(t *testing.T) {
 		defer func() {
 			os.Setenv("AWS_REGION", region)
 		}()
-		err := SignRequest(req, "test1", func(c *credentials.Credentials) *v4.Signer {
+		err := SignRequest(req, entity.AWSIAM{
+			ProfileName: "test1",
+			ServiceName: "es",
+		}, func(c *credentials.Credentials) *v4.Signer {
 			return buildSigner()
 		})
 		assert.EqualErrorf(

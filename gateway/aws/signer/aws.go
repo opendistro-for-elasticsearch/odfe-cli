@@ -18,6 +18,7 @@ package signer
 import (
 	"bytes"
 	"errors"
+	"odfe-cli/entity"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -26,12 +27,10 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 )
 
-const ElasticsearchService = "es"
-
 func GetV4Signer(credentials *credentials.Credentials) *v4.Signer {
 	return v4.NewSigner(credentials)
 }
-func sign(req *retryablehttp.Request, region *string, signer *v4.Signer) error {
+func sign(req *retryablehttp.Request, region *string, serviceName string, signer *v4.Signer) error {
 	bodyBytes, err := req.BodyBytes()
 	if err != nil {
 		return err
@@ -40,19 +39,19 @@ func sign(req *retryablehttp.Request, region *string, signer *v4.Signer) error {
 		return errors.New("aws region is not found. Either set 'AWS_REGION' or add this information during aws profile creation step")
 	}
 	// Sign the request
-	_, err = signer.Sign(req.Request, bytes.NewReader(bodyBytes), ElasticsearchService, *region, time.Now())
+	_, err = signer.Sign(req.Request, bytes.NewReader(bodyBytes), serviceName, *region, time.Now())
 	return err
 }
 
 //SignRequest signs the request using SigV4
-func SignRequest(req *retryablehttp.Request, profileName string, getSigner func(*credentials.Credentials) *v4.Signer) error {
+func SignRequest(req *retryablehttp.Request, awsProfile entity.AWSIAM, getSigner func(*credentials.Credentials) *v4.Signer) error {
 	awsSession, err := session.NewSessionWithOptions(session.Options{
-		Profile: profileName,
+		Profile: awsProfile.ProfileName,
 	})
 
 	if err != nil {
 		return err
 	}
 	signer := getSigner(awsSession.Config.Credentials)
-	return sign(req, awsSession.Config.Region, signer)
+	return sign(req, awsSession.Config.Region, awsProfile.ServiceName, signer)
 }
