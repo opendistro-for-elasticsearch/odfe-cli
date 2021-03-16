@@ -29,10 +29,11 @@ or from the [releases](https://github.com/opendistro-for-elasticsearch/odfe-cli/
 
 ### Odfe cli and Opendistro plugins compatibility
 
-| odfe-cli version  | odfe plugins  | odfe versions |
-| ----------------  | ------------- | --------------- |
-| 1.0               | [Anomaly Detection](https://opendistro.github.io/for-elasticsearch-docs/docs/ad/)  | [1.12.0](https://github.com/opendistro-for-elasticsearch/opendistro-build/blob/main/release-notes/opendistro-for-elasticsearch-release-notes-1.12.0.md), [1.13.0](https://github.com/opendistro-for-elasticsearch/opendistro-build/blob/main/release-notes/opendistro-for-elasticsearch-release-notes-1.13.0.md), [1.13.1](https://github.com/opendistro-for-elasticsearch/opendistro-build/blob/main/release-notes/opendistro-for-elasticsearch-release-notes-1.13.1.md) |
-
+| odfe plugins  | odfe versions |
+| ------------- | --------------- |
+| [Anomaly Detection](https://opendistro.github.io/for-elasticsearch-docs/docs/ad/)  | [1.12.0](https://github.com/opendistro-for-elasticsearch/opendistro-build/blob/main/release-notes/opendistro-for-elasticsearch-release-notes-1.12.0.md), [1.13.0](https://github.com/opendistro-for-elasticsearch/opendistro-build/blob/main/release-notes/opendistro-for-elasticsearch-release-notes-1.13.0.md), [1.13.1](https://github.com/opendistro-for-elasticsearch/opendistro-build/blob/main/release-notes/opendistro-for-elasticsearch-release-notes-1.13.1.md) |
+| [k-NN](https://opendistro.github.io/for-elasticsearch-docs/docs/knn/)  | [1.12.0](https://github.com/opendistro-for-elasticsearch/opendistro-build/blob/main/release-notes/opendistro-for-elasticsearch-release-notes-1.12.0.md), [1.13.0](https://github.com/opendistro-for-elasticsearch/opendistro-build/blob/main/release-notes/opendistro-for-elasticsearch-release-notes-1.13.0.md), [1.13.1](https://github.com/opendistro-for-elasticsearch/opendistro-build/blob/main/release-notes/opendistro-for-elasticsearch-release-notes-1.13.1.md) |
+            
 
 ## Development
 
