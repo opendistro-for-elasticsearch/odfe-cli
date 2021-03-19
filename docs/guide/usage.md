@@ -1,7 +1,7 @@
-# Using the ODFE CLI
+# Using the odfe-cli
 
 This section introduces you to many of the common features and options available in the 
-ODFE Command Line Interface (ODFE CLI).
+ODFE Command Line Interface (odfe-cli).
 
 
 **Topics**
@@ -16,7 +16,7 @@ ODFE Command Line Interface (ODFE CLI).
 You can get help with any command when using the ODFE Command Line Interface.
 To do so, simply type `--help` or `help` at the end of a command name. 
 
-For example, the following command displays help for the general ODFE CLI options and the available top-level commands. 
+For example, the following command displays help for the general odfe-cli options and the available top-level commands. 
 
 ```
 $ odfe-cli help
@@ -44,7 +44,7 @@ Use "odfe-cli [command] --help" for more information about a command.
 
 ```
 
-The following command displays Anomaly Detection plugin specific commands. 
+For example, the following command displays Anomaly Detection plugin specific commands. 
 
 ```
 $ odfe-cli ad help
@@ -76,13 +76,13 @@ Use "odfe-cli ad [command] --help" for more information about a command.
 
 ## Command structure
 
-The ODFE CLI uses a multipart structure on the command line that must be specified in this order:
+The odfe-cli uses a multipart structure on the command line that must be specified in this order:
 
 1. The base call to the `odfe-cli` program.
 
-1. The top-level *command*, which typically corresponds to OpenDistro plugins supported by the ODFE CLI.
+1. The top-level command, which typically corresponds to OpenDistro plugins supported by the odfe-cli.
 
-1. The *subcommand* that specifies which operation to perform.
+1. The subcommand that specifies which operation to perform.
 
 1. General CLI flags or parameters required by the operation.
 
@@ -92,7 +92,7 @@ The ODFE CLI uses a multipart structure on the command line that must be specifi
 
 ## Specifying parameter values
 
-Many flags used in the ODFE CLI are simple string, numeric values or boolean, such as the path and pretty in the following example. 
+Many flags used in the odfe-cli are simple string, numeric values or boolean, such as the path and pretty in the following example. 
 Here, path accepts string value while pretty is a boolean flag.
 
 **Note:** you must use quotation marks around strings that include one or more space characters
@@ -101,7 +101,7 @@ $ odfe-cli curl get --path _cluster/health --pretty
 ```
 
 ## Auto complete
-ODFE CLI includes a command-completion feature that enables you to use the Tab key to complete a partially entered command.
+odfe-cli includes a command-completion feature that enables you to use the Tab key to complete a partially entered command.
 This feature isn't automatically installed, you need to configure it manually.
 
 ### Configure auto complete
