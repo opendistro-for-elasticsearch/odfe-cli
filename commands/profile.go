@@ -248,10 +248,10 @@ func getCertificateAuthDetails(newProfile *entity.Profile) {
 	fmt.Printf("Certificate file path (leave blank if N/A): ")
 	if val := getUserInputAsText(nil); len(val) > 0 {
 		certificate.ClientCertificateFilePath = &val
-	}
-	fmt.Printf("Key file path (leave blank if N/A): ")
-	if val := getUserInputAsText(nil); len(val) > 0 {
-		certificate.ClientKeyFilePath = &val
+		fmt.Printf("Key file path: ")
+		if val := getUserInputAsText(checkInputIsNotEmpty); len(val) > 0 {
+			certificate.ClientKeyFilePath = &val
+		}
 	}
 	fmt.Printf("Certificate Authroity's (CA) certificate file path (leave blank if N/A): ")
 	if val := getUserInputAsText(nil); len(val) > 0 {
