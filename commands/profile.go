@@ -177,6 +177,7 @@ func init() {
 	_ = createProfileCmd.MarkFlagRequired(FlagProfileCreateEndpoint)
 	createProfileCmd.Flags().StringP(FlagProfileCreateAuthType, "a", "", "Authentication type. Options are disabled, basic and aws-iam."+
 		"\nIf security is disabled, provide --auth-type='disabled'.\nIf security uses HTTP basic authentication, provide --auth-type='basic'.\n"+
+		"If security uses client certificate authentication, provide --auth-type='cert'.\n"+
 		"If security uses AWS IAM ARNs as users, provide --auth-type='aws-iam'.\nodfe-cli asks for additional information based on your choice of authentication type.")
 	_ = createProfileCmd.MarkFlagRequired(FlagProfileCreateAuthType)
 	createProfileCmd.Flags().IntP(FlagProfileMaxRetry, "m", 3, "Maximum retry attempts allowed if transient problems occur.\n"+
