@@ -99,6 +99,8 @@ var createProfileCmd = &cobra.Command{
 			getBasicAuthDetails(&newProfile)
 		case "aws-iam":
 			getAWSIAMAuthDetails(&newProfile)
+		case "cert":
+			getCertificateAuthDetails(&newProfile)
 		default:
 			DisplayError(errors.New("invalid value for auth-type. Use --help -h command to see permitted values"), CreateNewProfileCommandName)
 			return
@@ -238,6 +240,24 @@ func getAWSIAMAuthDetails(newProfile *entity.Profile) {
 	fmt.Printf("AWS service name where your cluster is deployed (for Amazon Elasticsearch Service, use 'es'. For EC2, use 'ec2'): ")
 	awsIAM.ServiceName = getUserInputAsText(checkInputIsNotEmpty)
 	newProfile.AWS = awsIAM
+}
+
+// getCertificateAuthDetails gets certificate and key paths profile information from user using command line
+func getCertificateAuthDetails(newProfile *entity.Profile) {
+	certificate := &entity.Trust{}
+	fmt.Printf("Certificate file path (leave blank if N/A): ")
+	if val := getUserInputAsText(nil); len(val) > 0 {
+		certificate.ClientCertificateFilePath = &val
+	}
+	fmt.Printf("Key file path (leave blank if N/A): ")
+	if val := getUserInputAsText(nil); len(val) > 0 {
+		certificate.ClientKeyFilePath = &val
+	}
+	fmt.Printf("Certificate Authroity's (CA) certificate file path (leave blank if N/A): ")
+	if val := getUserInputAsText(nil); len(val) > 0 {
+		certificate.CAFilePath = &val
+	}
+	newProfile.Certificate = certificate
 }
 
 // getUserInputAsText get value from user as text
