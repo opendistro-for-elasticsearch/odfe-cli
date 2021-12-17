@@ -30,10 +30,9 @@ const (
 	defaultConfigFileName = "config"
 	flagConfig            = "config"
 	flagProfileName       = "profile"
-	folderPermission      = 0755 // only owner can write, while everyone can read and execute
 	odfeConfigEnvVarName  = "ODFE_CLI_CONFIG"
 	RootCommandName       = "odfe-cli"
-	version               = "1.1.0"
+	version               = "1.1.1"
 )
 
 func buildVersionString() string {
@@ -97,27 +96,6 @@ func GetConfigFilePath(configFlagValue string) (string, error) {
 		return "", err
 	}
 	return GetDefaultConfigFilePath(), nil
-}
-
-// createDefaultConfigFolderIfNotExists creates default config file along with folder if
-// it doesn't exists
-func createDefaultConfigFileIfNotExists() error {
-	defaultFilePath := GetDefaultConfigFilePath()
-	if isExists(defaultFilePath) {
-		return nil
-	}
-	folderPath := filepath.Dir(defaultFilePath)
-	if !isExists(folderPath) {
-		err := os.Mkdir(folderPath, folderPermission)
-		if err != nil {
-			return err
-		}
-	}
-	f, err := os.Create(defaultFilePath)
-	if err != nil {
-		return err
-	}
-	return f.Close()
 }
 
 //isExists check if given path exists or not

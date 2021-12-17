@@ -197,6 +197,9 @@ func getProfileController(cfgFlagValue string) (profile.Controller, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get config file due to: %w", err)
 	}
+	if err = checkConfigFilePermission(configFilePath); err != nil {
+		return nil, err
+	}
 	configController := config.New(configFilePath)
 	profileController := profile.New(configController)
 	return profileController, nil
