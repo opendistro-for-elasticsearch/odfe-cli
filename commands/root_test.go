@@ -16,8 +16,11 @@
 package commands
 
 import (
+	"fmt"
+	"io/ioutil"
 	"odfe-cli/entity"
 	"os"
+	"path/filepath"
 	"runtime"
 	"testing"
 
@@ -64,24 +67,56 @@ func TestVersionString(t *testing.T) {
 		assert.EqualValues(t, expected, cmd.Version)
 	})
 }
+func createTempConfigFile(testFilePath string) (*os.File, error) {
+	content, err := ioutil.ReadFile(testFilePath)
+	if err != nil {
+		return nil, err
+	}
+	tmpfile, err := ioutil.TempFile(os.TempDir(), "test-file")
+	if err != nil {
+		return nil, err
+	}
+	if _, err := tmpfile.Write(content); err != nil {
+		os.Remove(tmpfile.Name()) // clean up
+		return nil, err
+	}
+	if runtime.GOOS == "windows" {
+		return tmpfile, nil
+	}
+	if err := tmpfile.Chmod(0600); err != nil {
+		os.Remove(tmpfile.Name()) // clean up
+		return nil, err
+	}
+	return tmpfile, nil
+}
+
 
 func TestGetProfile(t *testing.T) {
 	t.Run("get default profile", func(t *testing.T) {
 		root := GetRoot()
 		assert.NotNil(t, root)
-		root.SetArgs([]string{"--config", "testdata/config.yaml"})
-		_, err := root.ExecuteC()
+		profileFile, err := createTempConfigFile("testdata/config.yaml")
+		assert.NoError(t, err)
+		filePath, err := filepath.Abs(profileFile.Name())
+		assert.NoError(t, err)
+		root.SetArgs([]string{"--config", filePath})
+		_, err = root.ExecuteC()
 		assert.NoError(t, err)
 		actual, err := GetProfile()
 		assert.NoError(t, err)
 		expectedProfile := entity.Profile{Name: "default", Endpoint: "http://localhost:9200", UserName: "default", Password: "admin"}
 		assert.EqualValues(t, expectedProfile, *actual)
+		os.Remove(profileFile.Name())
 	})
 	t.Run("test get profile", func(t *testing.T) {
 		root := GetRoot()
 		assert.NotNil(t, root)
-		root.SetArgs([]string{"--config", "testdata/config.yaml", "--profile", "test"})
-		_, err := root.ExecuteC()
+		profileFile, err := createTempConfigFile("testdata/config.yaml")
+		assert.NoError(t, err)
+		filePath, err := filepath.Abs(profileFile.Name())
+		assert.NoError(t, err)
+		root.SetArgs([]string{"--config", filePath, "--profile", "test"})
+		_, err = root.ExecuteC()
 		assert.NoError(t, err)
 		actual, err := GetProfile()
 		assert.NoError(t, err)
@@ -91,11 +126,16 @@ func TestGetProfile(t *testing.T) {
 	t.Run("Profile mismatch", func(t *testing.T) {
 		root := GetRoot()
 		assert.NotNil(t, root)
-		root.SetArgs([]string{"--config", "testdata/config.yaml", "--profile", "test1"})
-		_, err := root.ExecuteC()
+		profileFile, err := createTempConfigFile("testdata/config.yaml")
 		assert.NoError(t, err)
-		_, err = GetProfile()
+		filePath, err := filepath.Abs(profileFile.Name())
+		assert.NoError(t, err)
+		root.SetArgs([]string{"--config", filePath, "--profile", "test1"})
+		_, err = root.ExecuteC()
+		assert.NoError(t, err)
+		a, err := GetProfile()
 		assert.EqualErrorf(t, err, "profile 'test1' does not exist", "unexpected error")
+		fmt.Print(a)
 	})
 	t.Run("no config file found", func(t *testing.T) {
 		root := GetRoot()
@@ -104,6 +144,24 @@ func TestGetProfile(t *testing.T) {
 		_, err := root.ExecuteC()
 		assert.NoError(t, err)
 		_, err = GetProfile()
-		assert.EqualError(t, err, "open testdata/config1.yaml: no such file or directory", "unexpected error")
+		assert.EqualError(t, err, "failed to get config file info due to: stat testdata/config1.yaml: no such file or directory", "unexpected error")
+	})
+	t.Run("invalid config file permission", func(t *testing.T) {
+		if runtime.GOOS == "windows" {
+			t.Skipf("test case does not work on %s", runtime.GOOS)
+		}
+
+		root := GetRoot()
+		assert.NotNil(t, root)
+		profileFile, err := createTempConfigFile("testdata/config.yaml")
+		assert.NoError(t, err)
+		assert.NoError(t, profileFile.Chmod(0750))
+		filePath, err := filepath.Abs(profileFile.Name())
+		assert.NoError(t, err)
+		root.SetArgs([]string{"--config", filePath, "--profile", "test"})
+		_, err = root.ExecuteC()
+		assert.NoError(t, err)
+		_, err = GetProfile()
+		assert.EqualError(t, err, fmt.Sprintf("permissions 750 for '%s' are too open. It is required that your config file is NOT accessible by others", filePath), "unexpected error")
 	})
 }
