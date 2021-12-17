@@ -90,7 +90,6 @@ func createTempConfigFile(testFilePath string) (*os.File, error) {
 	return tmpfile, nil
 }
 
-
 func TestGetProfile(t *testing.T) {
 	t.Run("get default profile", func(t *testing.T) {
 		root := GetRoot()
