@@ -5,7 +5,7 @@
 ![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
 # ODFE Command Line Interface
 
-ODFE Command Line Interface (odfe-cli) is an open source tool that lets you manage your Open Distro for Elasticsearch
+ODFE Command Line Interface (odfe-cli) is an open source tool that lets you manage your Open Distro
 cluster from the command line and automate tasks. In addition to standard Elasticsearch operations, you can configure,
 manage, and use the ODFE plugins, such as Alerting, Anomaly Detection, and SQL
 
